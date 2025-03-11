@@ -1,0 +1,48 @@
+[{
+    "_id": {
+      "$oid": "67b89809132074a1824d794c"
+    },
+    "eventName": "Annual Tech Summit",
+    "eventType": "firm-wide",
+    "date": {
+      "$date": "2025-03-10T00:00:00.000Z"
+    },
+    "venue": "Auditorium",
+    "description": "Tech innovations and talks",
+    "availableSlots": 100,
+    "attendees": [],
+    "team": "",
+    "isPaid": false
+  },
+  {
+    "_id": {
+      "$oid": "67b89809132074a1824d794d"
+    },
+    "eventName": "Marketing Strategy Workshop",
+    "eventType": "team-specific",
+    "date": {
+      "$date": "2025-02-25T00:00:00.000Z"
+    },
+    "venue": "Conference Room 3",
+    "description": "Advanced marketing techniques",
+    "availableSlots": null,
+    "attendees": [],
+    "team": "Marketing",
+    "isPaid": false
+  },
+  {
+    "_id": {
+      "$oid": "67b89809132074a1824d794e"
+    },
+    "eventName": "Team Outing",
+    "eventType": "limited-entry",
+    "date": {
+      "$date": "2025-04-05T00:00:00.000Z"
+    },
+    "venue": "Resort",
+    "description": "Fun team bonding",
+    "availableSlots": 20,
+    "attendees": [],
+    "team": "",
+    "isPaid": true
+  }]

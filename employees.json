@@ -1,0 +1,100 @@
+[{
+    "_id": {
+      "$oid": "67b897fd132074a1824d7942"
+    },
+    "name": "Alice",
+    "email": "alice@example.com",
+    "password": "1234",
+    "role": "admin",
+    "team": "HR"
+  },
+  {
+    "_id": {
+      "$oid": "67b897fd132074a1824d7943"
+    },
+    "name": "Bob",
+    "email": "bob@example.com",
+    "password": "1234",
+    "role": "employee",
+    "team": "Tech"
+  },
+  {
+    "_id": {
+      "$oid": "67b897fd132074a1824d7944"
+    },
+    "name": "Charlie",
+    "email": "charlie@example.com",
+    "password": "1234",
+    "role": "employee",
+    "team": "Marketing"
+  },
+  {
+    "_id": {
+      "$oid": "67b897fd132074a1824d7945"
+    },
+    "name": "David",
+    "email": "david@example.com",
+    "password": "1234",
+    "role": "employee",
+    "team": "Finance"
+  },
+  {
+    "_id": {
+      "$oid": "67b897fd132074a1824d7946"
+    },
+    "name": "Eve",
+    "email": "eve@example.com",
+    "password": "1234",
+    "role": "admin",
+    "team": "Operations"
+  },
+  {
+    "_id": {
+      "$oid": "67b897fd132074a1824d7947"
+    },
+    "name": "Frank",
+    "email": "frank@example.com",
+    "password": "1234",
+    "role": "employee",
+    "team": "HR"
+  },
+  {
+    "_id": {
+      "$oid": "67b897fd132074a1824d7948"
+    },
+    "name": "Grace",
+    "email": "grace@example.com",
+    "password": "1234",
+    "role": "employee",
+    "team": "Tech"
+  },
+  {
+    "_id": {
+      "$oid": "67b897fd132074a1824d7949"
+    },
+    "name": "Hank",
+    "email": "hank@example.com",
+    "password": "1234",
+    "role": "employee",
+    "team": "Marketing"
+  },
+  {
+    "_id": {
+      "$oid": "67b897fd132074a1824d794a"
+    },
+    "name": "Ivy",
+    "email": "ivy@example.com",
+    "password": "1234",
+    "role": "employee",
+    "team": "Finance"
+  },
+  {
+    "_id": {
+      "$oid": "67b897fd132074a1824d794b"
+    },
+    "name": "Jack",
+    "email": "jack@example.com",
+    "password": "1234",
+    "role": "employee",
+    "team": "Operations"
+  }]
