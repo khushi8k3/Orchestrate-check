@@ -1,19 +1,14 @@
-// frontend/src/App.js
-
-import React, { useState } from 'react';
-import EventForm from './components/EventForm';
-import NotificationList from './components/NotificationList';
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import EventForm from "./components/EventForm";
 
 function App() {
-  // This state could be used to store notifications fetched from backend later
-  const [notifications] = useState([]);
-
   return (
-    <div className="App">
-      <h1>Event Management System</h1>
-      <EventForm />
-      <NotificationList notifications={notifications} />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<EventForm />} />
+      </Routes>
+    </Router>
   );
 }
 

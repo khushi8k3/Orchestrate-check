@@ -1,19 +1,18 @@
-// backend/models/Event.js
-
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+const taskSchema = require("./Task");
 
 const eventSchema = new mongoose.Schema({
-  title: String,
-  description: String,
-  date: Date,
-  tasks: [
-    {
-      title: String,
-      // Instead of storing an ObjectId, store the email directly:
-      assignedTo: String 
-    }
-  ]
+    eventName: { type: String, required: true },
+    eventType: { type: String, enum: ["firm-wide", "limited", "team-specific"], required: true },
+    date: { type: Date }, // Optional event date
+    venue: { type: String }, // Optional venue
+    description: { type: String, required: true },
+    availableSlots: { type: Number }, // Only required for limited events, validated at application level
+    ticketPrice: { type: Number }, // Only for limited events, validated at application level
+    attendees: { type: [String], default: [] },
+    team: { type: String, default: "" },
+    isPaid: { type: Boolean, default: false },
+    tasks: [taskSchema] // Embedded tasks array
 });
 
-module.exports = mongoose.model('Event', eventSchema);
-
+module.exports = mongoose.model("Event", eventSchema);
