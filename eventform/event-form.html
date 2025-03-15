@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create an Event</title>
+    <link rel="stylesheet" href="styles/form.css">
+</head>
+<body>
+    <h2>Create a New Event</h2>
+    
+    <form id="event-form">
+        <label>Event Name:</label>
+        <input type="text" id="event-name" required>
+
+        <label>Event Date & Time:</label>
+        <input type="datetime-local" id="event-date" required>
+
+        <label>Budget:</label>
+        <input type="number" id="event-budget" required>
+
+        <label>Event Type:</label>
+        <select id="event-type">
+            <option value="firm-wide">Firm-Wide (All Employees)</option>
+            <option value="team-specific">Team-Specific</option>
+            <option value="limited-entry">Limited Entry (Payment-Based)</option>
+        </select>
+
+        <div id="team-selection" class="hidden">
+            <label>Select Team:</label>
+            <select id="team-list">
+                <option value="hr">HR Team</option>
+                <option value="engineering">Engineering Team</option>
+                <option value="marketing">Marketing Team</option>
+            </select>
+        </div>
+
+        <div id="ticket-price-section" class="hidden">
+            <label>Ticket Price:</label>
+            <input type="number" id="ticket-price">
+        </div>
+
+        <label>RSVP People:</label>
+        <select id="rsvp-list" multiple>
+            <option value="emp1">John Doe</option>
+            <option value="emp2">Jane Smith</option>
+            <option value="emp3">Michael Lee</option>
+        </select>
+
+        <h3>Mandatory Task</h3>
+        <label>Task:</label>
+        <input type="text" id="mandatory-task" required>
+
+        <label>Deadline:</label>
+        <input type="date" id="task-deadline" required>
+
+        <label>Task Budget:</label>
+        <input type="number" id="task-budget" required>
+
+        <label>Assign To:</label>
+        <input type="text" id="task-assignee" required>
+
+        <h3>Additional Tasks</h3>
+        <div id="tasks-container"></div>
+        <button type="button" id="add-task-btn">+ Add Task</button>
+
+        <br><br>
+        <button type="submit">Create Event</button>
+    </form>
+
+    <script src="scripts/form.js"></script>
+</body>
+</html>
