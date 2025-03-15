@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Event</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        label {
+            display: inline-block;
+            width: 150px;
+            margin-bottom: 10px;
+        }
+        input, select {
+            width: 250px;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            margin-top: 10px;
+            margin-right: 10px;
+        }
+        .task {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h2>Create a New Event</h2>
+    <form id="eventForm">
+        <label>Event Name:</label>
+        <input type="text" name="eventName" required><br>
+        
+        <label>Event Date & Time:</label>
+        <input type="datetime-local" name="eventDateTime" required><br>
+        
+        <label>Budget (Rs.):</label>
+        <input type="number" name="budget" placeholder="Enter budget in Rs." required><br>
+        
+        <label>Event Type:</label>
+        <select name="eventType" id="eventType" required>
+            <option value="Firm Wide">Firm Wide</option>
+            <option value="Team Specific">Team Specific</option>
+            <option value="Limited Entry">Limited Entry (Payment-Based)</option>
+        </select><br>
+
+        <div id="limitedEntryFields" style="display: none;">
+            <label>Ticket Price (Rs.):</label>
+            <input type="number" name="ticketPrice"><br>
+            <label>Max People Allowed:</label>
+            <input type="number" name="maxPeopleAllowed"><br>
+        </div>
+        
+        <label>RSVP People:</label>
+        <select name="rsvpPeople[]" id="rsvpPeople" multiple style="height: 100px;">
+            <option value="all">Invite All</option>
+        </select><br>
+
+        <h3>Tasks</h3>
+        <div id="tasksContainer">
+            <div class="task">
+                <label>Task:</label>
+                <input type="text" name="tasks[0][taskName]" required><br>
+                <label>Deadline:</label>
+                <input type="date" name="tasks[0][deadline]" required><br>
+                <label>Task Budget (Rs.):</label>
+                <input type="number" name="tasks[0][taskBudget]" required><br>
+                <label>Assign To:</label>
+                <select name="tasks[0][assignedTo]" class="assignTo">
+                    <option value="all">Assign to All</option>
+                </select><br>
+            </div>
+        </div>
+
+        <button type="button" id="addTask">Add Task</button>
+        <button type="submit">Create Event</button>
+    </form>
+
+    <script>
+        $(document).ready(function () {
+            // Display loading indicator for API calls
+            const showLoading = function(message) {
+                $('body').append(`<div id="loading" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);color:white;display:flex;justify-content:center;align-items:center;z-index:1000;">${message || 'Loading...'}</div>`);
+            };
+            
+            const hideLoading = function() {
+                $('#loading').remove();
+            };
+
+            // Fetch employees and populate dropdowns
+            showLoading('Loading employees...');
+            $.ajax({
+                url: 'http://localhost:5001/api/employees',
+                method: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    hideLoading();
+                    console.log("API Response:", response);
+
+                    let employees = Array.isArray(response) ? response : (response.employees || []);
+                    
+                    if (!employees || employees.length === 0) {
+                        console.error("No employees found!");
+                        return;
+                    }
+
+                    let options = employees.map(emp => `<option value="${emp.email}">${emp.name} (${emp.email})</option>`).join("");
+
+                    // Populate RSVP dropdown
+                    $('#rsvpPeople').append(options);
+
+                    // Populate the first Task Assign dropdown
+                    $('.assignTo').each(function () {
+                        $(this).append(options);
+                    });
+                },
+                error: function(xhr, status, error) {
+                    hideLoading();
+                    console.error("Failed to fetch employees:", error);
+                    console.error("Response:", xhr.responseText);
+                    alert("Failed to load employee data. Check the console for details.");
+                }
+            });
+
+            // Show/hide limited entry fields based on event type
+            $('#eventType').change(function () {
+                if ($(this).val() === 'Limited Entry') {
+                    $('#limitedEntryFields').show();
+                } else {
+                    $('#limitedEntryFields').hide();
+                }
+            });
+
+            let taskIndex = 1;
+            let employeeOptions = '';
+            
+            // Cache employee options after first load
+            $(document).on('employeesLoaded', function(e, options) {
+                employeeOptions = options;
+            });
+
+            $('#addTask').click(function () {
+                let taskHtml = `
+                    <div class="task">
+                        <label>Task:</label>
+                        <input type="text" name="tasks[${taskIndex}][taskName]" required><br>
+                        <label>Deadline:</label>
+                        <input type="date" name="tasks[${taskIndex}][deadline]" required><br>
+                        <label>Task Budget (Rs.):</label>
+                        <input type="number" name="tasks[${taskIndex}][taskBudget]" required><br>
+                        <label>Assign To:</label>
+                        <select name="tasks[${taskIndex}][assignedTo]" class="assignTo">
+                            <option value="all">Assign to All</option>
+                            ${employeeOptions}
+                        </select><br>
+                    </div>
+                `;
+
+                $('#tasksContainer').append(taskHtml);
+                taskIndex++;
+            });
+
+            // Handle form submission
+            $('#eventForm').submit(function(e) {
+                e.preventDefault();
+                
+                showLoading('Creating event...');
+                
+                // Convert form data to JSON object
+                let formData = {};
+                $(this).serializeArray().forEach(function(item) {
+                    // Handle array notation in field names (tasks[0][taskName])
+                    if (item.name.includes('[')) {
+                        const matches = item.name.match(/([a-zA-Z0-9]+)\[([0-9]+)\]\[([a-zA-Z0-9]+)\]/);
+                        if (matches) {
+                            const [_, arrayName, index, property] = matches;
+                            if (!formData[arrayName]) formData[arrayName] = [];
+                            if (!formData[arrayName][index]) formData[arrayName][index] = {};
+                            formData[arrayName][index][property] = item.value;
+                        } else if (item.name.endsWith('[]')) {
+                            // Handle multiple select values
+                            const fieldName = item.name.slice(0, -2);
+                            if (!formData[fieldName]) formData[fieldName] = [];
+                            formData[fieldName].push(item.value);
+                        }
+                    } else {
+                        formData[item.name] = item.value;
+                    }
+                });
+                
+                // Clean up tasks array (remove empty entries and convert to proper array)
+                if (formData.tasks) {
+                    formData.tasks = Object.values(formData.tasks).filter(task => task && task.taskName);
+                }
+                
+                console.log("Submitting data:", formData);
+                
+                // Send to your MongoDB API endpoint
+                $.ajax({
+                    url: 'http://localhost:5001/api/create',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function(response) {
+                        hideLoading();
+                        console.log("Event created successfully:", response);
+                        alert('Event created successfully!');
+                        // Reset form
+                        $('#eventForm')[0].reset();
+                        // Reset tasks (keep only the first one)
+                        $('#tasksContainer').html(`
+                            <div class="task">
+                                <label>Task:</label>
+                                <input type="text" name="tasks[0][taskName]" required><br>
+                                <label>Deadline:</label>
+                                <input type="date" name="tasks[0][deadline]" required><br>
+                                <label>Task Budget (Rs.):</label>
+                                <input type="number" name="tasks[0][taskBudget]" required><br>
+                                <label>Assign To:</label>
+                                <select name="tasks[0][assignedTo]" class="assignTo">
+                                    <option value="all">Assign to All</option>
+                                    ${employeeOptions}
+                                </select><br>
+                            </div>
+                        `);
+                        taskIndex = 1;
+                    },
+                    error: function(xhr, status, error) {
+                        hideLoading();
+                        console.error("Error creating event:", error);
+                        console.error("Response:", xhr.responseText);
+                        alert('Failed to create event: ' + (xhr.responseText || error));
+                    }
+                });
+            });
+
+            // Cache employee options for reuse
+            $(document).on('ajaxComplete', function(event, xhr, settings) {
+                if (settings.url === 'http://localhost:5001/api/employees' && xhr.status === 200) {
+                    try {
+                        let response = JSON.parse(xhr.responseText);
+                        let employees = Array.isArray(response) ? response : (response.employees || []);
+                        let options = employees.map(emp => `<option value="${emp.email}">${emp.name} (${emp.email})</option>`).join("");
+                        $(document).trigger('employeesLoaded', [options]);
+                    } catch(e) {
+                        console.error("Error parsing employee data:", e);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
