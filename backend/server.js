@@ -6,36 +6,25 @@ const bodyParser = require("body-parser");
 
 const eventRoutes = require("./routes/eventRoutes");
 const authRoutes = require("./routes/auth");
+const taskRoutes = require("./routes/taskRoutes");
+const employeeRoutes = require("./routes/employeeRoutes");
 
 const app = express();
-
-// ✅ CORS Configuration (Add Here)
-const corsOptions = {
-    origin: ["http://localhost:3000"], // Allow only frontend
-    credentials: true
-};
-app.use(cors(corsOptions));
-
-app.use(bodyParser.json());
 app.use(express.json());
+app.use(cors());
+app.use(bodyParser.json());
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI, {
-    dbName: process.env.DB_NAME,
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-.then(() => console.log(`✅ Connected to MongoDB: ${process.env.DB_NAME}`))
-.catch(err => {
-    console.error("❌ MongoDB Connection Error:", err.message);
-    process.exit(1);
-});
+mongoose
+    .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log("Connected to MongoDB"))
+    .catch((error) => console.error("MongoDB connection error:", error));
 
-// ✅ Define Routes After Middleware
+// Define Routes After Middleware
 app.use("/api/auth", authRoutes);
-app.use("/api", eventRoutes);
+app.use("/api/events", eventRoutes);  // Use /api/events for event-related routes
+app.use("/api/tasks", taskRoutes);
+app.use("/api/employees", employeeRoutes);
 
-// Start Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -1,0 +1,40 @@
+/* Ensure Notification Panel Stays in Place */
+.notification-container {
+    display: flex;
+    justify-content: flex-end; /* Aligns it to the right */
+    align-items: flex-start; /* Ensures alignment with event feed */
+    width: 100%;
+    margin-right: 100px;
+}
+
+/* Outer Notification Panel */
+.notification-panel {
+    width: 400px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative; /* Ensures proper placement */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Inner Notification Content */
+.notification-content {
+    width: 80%; /* Keep it inside the outer box */
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    margin-top: 10px; /* Ensures spacing */
+    position: relative; /* Keep it within the parent */
+}
+
+/* No Tasks Message */
+.notification-panel p {
+    text-align: center;
+    color: #666;
+    margin-right:80px;
+}
