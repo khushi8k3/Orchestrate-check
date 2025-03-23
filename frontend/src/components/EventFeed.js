@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import RazorpayButton from "./RazorpayButton";
 import "../styles/EventFeed.css";
 import NotificationPanel from "./NotificationPanel";
 
@@ -26,39 +26,8 @@ function EventFeed({ loggedInUser }) {
         fetchEvents();
     }, []);
 
-    // ✅ RSVP function
-    const handleRSVP = async (eventId) => {
-        try {
-            const token = localStorage.getItem("token");
-            const res = await axios.post(
-                `http://localhost:5000/api/events/${eventId}/rsvp`,
-                { employeeName: loggedInUser.name },
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
-            );
-
-            if (res.status === 200) {
-                alert("RSVP successful!");
-                setEvents((prevEvents) =>
-                    prevEvents.map((event) =>
-                        event._id === eventId
-                            ? { ...event, availableSlots: event.availableSlots - 1, attendees: [...event.attendees, loggedInUser.name] }
-                            : event
-                    )
-                );
-            } else {
-                alert("RSVP failed!");
-            }
-        } catch (error) {
-            alert("Error during RSVP. Please try again.");
-            console.error("RSVP Error:", error);
-        }
-    };
-
     return (
         <div className="event-feed-container">
-            {/* Upcoming Events Section */}
             <div className="event-feed">
                 <h2 className="upcoming-events-title">Upcoming Events</h2>
                 <div className="event-list">
@@ -74,25 +43,22 @@ function EventFeed({ loggedInUser }) {
                                 {event.availableSlots !== null && (
                                     <p><strong>Available Slots:</strong> {event.availableSlots}</p>
                                 )}
-                                {event.eventType === "limited-entry" && event.ticketPrice && (
-                                    <p><strong>Ticket Price:</strong> ₹{event.ticketPrice}</p>
-                                )}
-                                {event.eventType === "limited-entry" && (
-                                    <button
-                                        className="rsvp-button"
-                                        onClick={() => handleRSVP(event._id)}
-                                        disabled={event.attendees?.includes(loggedInUser.name) || event.availableSlots === 0}
-                                    >
-                                        {event.attendees?.includes(loggedInUser.name) ? "RSVP'd" : "RSVP"}
-                                    </button>
+                                {event.eventType === "limited-entry" && event.ticketPrice !== undefined && (
+                                    <>
+                                        <p><strong>Ticket Price:</strong> ₹{event.ticketPrice}</p>
+                                        {event.attendees.includes(loggedInUser.name) ? (
+                                            <button disabled className="rsvp-button">RSVP’d</button>
+                                        ) : (
+                                            <RazorpayButton event={event} loggedInUser={loggedInUser} />
+                                        )}
+                                    </>
                                 )}
                             </div>
                         ))
                     )}
                 </div>
             </div>
-    
-            {/* Notifications Section */}
+
             <div className="notification-panel">
                 <h2>Notifications</h2>
                 <NotificationPanel loggedInUser={loggedInUser} />
@@ -102,4 +68,3 @@ function EventFeed({ loggedInUser }) {
 }
 
 export default EventFeed;
-

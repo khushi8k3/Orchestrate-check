@@ -3,7 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Login from "./components/Login";
 import EventFeed from "./components/EventFeed";
 import EventForm from "./components/EventForm";
-import Navbar from "./components/Navbar";  // Import Navbar
+import Navbar from "./components/Navbar";
+import RazorpayButton from "./components/RazorpayButton"; // Include Razorpay button
 import "./styles/App.css";
 
 function App() {
@@ -24,8 +25,7 @@ function App() {
 
     return (
         <Router>
-            {/* Keep Navbar constant on all pages */}
-            <Navbar handleLogout={handleLogout} userRole={loggedInUser?.role} /> 
+            <Navbar handleLogout={handleLogout} userRole={loggedInUser?.role} />
             <Routes>
                 <Route
                     path="/"
@@ -33,7 +33,13 @@ function App() {
                 />
                 <Route
                     path="/feed"
-                    element={loggedInUser ? <EventFeed loggedInUser={loggedInUser} /> : <Navigate to="/" replace />}
+                    element={loggedInUser ? (
+                        <div>
+                            <EventFeed loggedInUser={loggedInUser} />
+                            <h2>Pay to RSVP for the event</h2>
+                            <RazorpayButton amount={100} />
+                        </div>
+                    ) : <Navigate to="/" replace />}
                 />
                 <Route
                     path="/create-event"
@@ -45,4 +51,3 @@ function App() {
 }
 
 export default App;
-
