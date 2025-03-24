@@ -135,34 +135,47 @@ function EventForm() {
                 </div>
                 {eventType === "limited-entry" && (
                     <>
-                    <div className="form-group">
-                      <label>Available Slots</label>
-                      <input
-                        type="text"
-                        placeholder="Available Slots"
-                        value={availableSlots}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric
-                          setAvailableSlots(value);
-                        }}
-                        required
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Ticket Price</label>
-                      <input
-                        type="text"
-                        placeholder="Ticket Price"
-                        value={ticketPrice}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric
-                          setTicketPrice(value);
-                        }}
-                        required
-                      />
-                    </div>
-                  </>
-                  
+                        <div className="form-group">
+                            <label>Available Slots</label>
+                            <input
+                                type="number"
+                                placeholder="Available Slots"
+                                value={availableSlots}
+                                onChange={(e) => {
+                                    if (validateNumber(e.target.value)) {
+                                        setAvailableSlots(e.target.value);
+                                        setAvailableSlotsError("");
+                                    } else {
+                                        setAvailableSlotsError("What you have entered is not a number.");
+                                    }
+                                }}
+                                style={{ borderColor: availableSlotsError ? "red" : "" }}
+                            />
+                            {availableSlotsError && (
+                                <p className="error-message">{availableSlotsError}</p>
+                            )}
+                        </div>
+                        <div className="form-group">
+                            <label>Ticket Price (optional)</label>
+                            <input
+                                type="number"
+                                placeholder="Ticket Price"
+                                value={ticketPrice}
+                                onChange={(e) => {
+                                    if (validateNumber(e.target.value)) {
+                                        setTicketPrice(e.target.value);
+                                        setTicketPriceError("");
+                                    } else {
+                                        setTicketPriceError("What you have entered is not a number.");
+                                    }
+                                }}
+                                style={{ borderColor: ticketPriceError ? "red" : "" }}
+                            />
+                            {ticketPriceError && (
+                                <p className="error-message">{ticketPriceError}</p>
+                            )}
+                        </div>
+                    </>
                 )}
 
                 {eventType === "team-specific" && (
@@ -219,15 +232,11 @@ function EventForm() {
                                 <p className="error-message">{deadlineError}</p>
                             )}
                             <input
-                                type="text" // Change from number to text
+                                type="number"
                                 placeholder="Budget"
                                 value={task.budget}
-                                onChange={(e) => {
-                                const value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric
-                                handleTaskChange(index, "budget", value);
-                                }}
+                                onChange={(e) => handleTaskChange(index, "budget", e.target.value)}
                             />
-
                         </div>
                         <button type="button" onClick={() => removeTask(index)}>Remove Task</button>
                     </div>
