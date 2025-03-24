@@ -2,9 +2,10 @@ const express = require("express");
 const {
   createEvent,
   getEvents,
-  rsvpToEvent,
+  confirmRSVP,  // Fix the imported function name
+  getDetailedReport,
+  getCompiledReport,
 } = require("../controllers/eventController");
-
 const router = express.Router();
 
 // Create an event
@@ -14,6 +15,10 @@ router.post("/", createEvent);
 router.get("/", getEvents);
 
 // RSVP to an event
-router.post("/:id/rsvp", rsvpToEvent);
+router.post("/:id/rsvp", confirmRSVP);  // Fix the function name
+
+// Detailed and compiled reports
+router.get("/detailedReport", getDetailedReport);
+router.get("/compiledReport", getCompiledReport);
 
 module.exports = router;

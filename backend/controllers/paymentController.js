@@ -32,7 +32,7 @@ exports.createOrder = async (req, res) => {
     }
 };
 
-// ✅ Confirm Payment and RSVP User
+// Confirm Payment and RSVP User
 exports.confirmPayment = async (req, res) => {
     const { eventId, employeeName } = req.body;
 

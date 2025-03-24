@@ -3,7 +3,7 @@ import axios from "axios";
 import io from "socket.io-client";
 import "../styles/NotificationPanel.css";
 
-const socket = io("http://localhost:5000"); // Adjust to your backend URL if needed
+const socket = io("http://localhost:5000");// Adjust to your backend URL if needed
 
 function NotificationPanel({ loggedInUser }) {
     const [tasks, setTasks] = useState([]);

@@ -34,6 +34,7 @@ function Navbar({ handleLogout, userRole }) {
                     {userRole === "admin" && (
                         <button onClick={() => handleNavigation("/create-event")}>Create Event</button>
                     )}
+                    <button onClick={() => handleNavigation("/reports")}>See Reports</button>
                     <button onClick={handleLogout}>Logout</button>
                 </div>
             )}

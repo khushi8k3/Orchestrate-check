@@ -1,8 +1,9 @@
+require("dotenv").config();
 const Event = require("../models/Event");
 const Employee = require("../models/Employee");
 const { sendEmail } = require("../services/emailService");
 
-// ✅ Create an Event
+// Create an Event
 exports.createEvent = async (req, res) => {
     try {
         const { eventName, eventType, date, venue, description, availableSlots, ticketPrice, team, tasks } = req.body;
@@ -30,7 +31,7 @@ exports.createEvent = async (req, res) => {
 
         await event.save();
 
-        // ✅ Send task assignment emails
+        // Send task assignment emails
         const emailPromises = tasks.map(async (task) => {
             const { assignedToEmail, taskName, description, deadline, budget } = task;
             const employee = await Employee.findOneAndUpdate(
@@ -51,14 +52,20 @@ exports.createEvent = async (req, res) => {
             );
 
             if (employee) {
-                const emailText = `Dear ${employee.name},\n
-                You have been assigned a new task as part of the event "${eventName}".\n
-                Task Name: ${taskName}\n
-                Description: ${description}\n
-                Deadline: ${deadline ? deadline : "Not specified"}\n
-                Budget: ${budget ? budget : "Not applicable"}\n
-                Please complete the task before the deadline.\n
-                Best regards,\nOrchestrate`;
+                const emailText = `Dear ${employee.name},
+ You have been assigned a new task as part of the event "${eventName}". Please review the task details below:
+ 
+ Task Name: ${taskName}
+ Description: ${description}
+ Deadline: ${deadline ? deadline : "Not specified"}
+ Budget: ${budget ? budget : "Not applicable"}
+ 
+ We kindly request that you review the task details and take the necessary actions to complete it by the stated deadline. Should you require further clarification, please do not hesitate to reach out to your supervisor.
+ 
+ Thank you for your prompt attention.
+ 
+ Best regards,
+ Orchestrate`;
 
                 return sendEmail(assignedToEmail, `New Task Assigned: ${eventName}`, emailText);
             }
@@ -72,7 +79,7 @@ exports.createEvent = async (req, res) => {
     }
 };
 
-// ✅ RSVP to an Event (Only after Payment)
+// RSVP to an Event (Only after Payment)
 exports.confirmRSVP = async (req, res) => {
     const { eventId, employeeName } = req.body;
 
@@ -92,7 +99,7 @@ exports.confirmRSVP = async (req, res) => {
             return res.status(400).json({ message: "No slots available" });
         }
 
-        // ✅ Mark RSVP successful after payment
+        // Mark RSVP successful after payment
         const updatedEvent = await Event.findByIdAndUpdate(
             eventId,
             {
@@ -109,7 +116,7 @@ exports.confirmRSVP = async (req, res) => {
     }
 };
 
-// ✅ Get All Events
+// Get All Events
 exports.getEvents = async (req, res) => {
     try {
         const events = await Event.find(); // Fetch all events
@@ -120,3 +127,151 @@ exports.getEvents = async (req, res) => {
     }
 };
 
+
+exports.getDetailedReport = async (req, res) => {
+    try {
+      const { eventName, year, team } = req.query;
+      const query = {};
+  
+      // Dynamically apply filters
+      if (eventName) {
+        query.eventName = { $regex: new RegExp(`^${eventName}$`, "i") };
+      }
+      if (team) {
+        query.team = { $regex: new RegExp(`^${team}$`, "i") };
+      }
+      if (year) {
+        const startOfYear = new Date(`${year}-01-01T00:00:00.000Z`);
+        const endOfYear = new Date(`${year}-12-31T23:59:59.999Z`);
+        query.date = { $gte: startOfYear, $lte: endOfYear };
+      }
+  
+      console.log("Generated Query:", query);
+  
+      // Fetch matching events
+      const events = await Event.find(query);
+  
+      if (!events || events.length === 0) {
+        return res.status(404).json({ message: "No events found with the specified criteria." });
+      }
+  
+      // Generate reports for each matching event
+      const reportData = events.map((event) => {
+        // Task Stats
+        const totalTasks = event.tasks?.length || 0;
+        const completedTasks = event.tasks?.filter(task => task.status === "Completed").length || 0;
+        const taskCompletionRate = totalTasks ? ((completedTasks / totalTasks) * 100).toFixed(2) : 0;
+  
+        // Budget Analysis
+        const totalBudget = event.tasks?.reduce((sum, task) => sum + (task.budget || 0), 0);
+  
+        // Attendance Stats (Only for Limited Entry Events)
+        let totalRSVP = 0;
+        let totalAttended = 0;
+        let attendancePercentage = 0;
+  
+        if (event.eventType === "limited-entry" && event.attendees) {
+          totalRSVP = event.attendees?.length || 0;
+          totalAttended = event.attendees?.filter(email => email !== "").length || 0;
+          attendancePercentage = totalRSVP ? ((totalAttended / totalRSVP) * 100).toFixed(2) : 0;
+        }
+  
+        return {
+          eventName: event.eventName,
+          year: event.date?.getFullYear(),
+          team: event.team,
+          eventType: event.eventType,
+          totalRSVP,
+          totalAttended,
+          attendancePercentage,
+          totalTasks,
+          completedTasks,
+          taskCompletionRate,
+          totalBudget,
+        };
+      });
+  
+      res.status(200).json(reportData);
+    } catch (error) {
+      console.error("Error generating detailed report:", error);
+      res.status(500).json({ error: error.message });
+    }
+  };
+
+exports.getCompiledReport = async (req, res) => {
+  try {
+    const { eventName, year, team, eventType } = req.query;
+    const query = {};
+
+    // Dynamically apply filters
+    if (eventName) {
+      query.eventName = { $regex: new RegExp(`^${eventName}$`, "i") };
+    }
+    if (team) {
+      query.team = { $regex: new RegExp(`^${team}$`, "i") };
+    }
+    if (eventType) {
+      query.eventType = { $regex: new RegExp(`^${eventType}$`, "i") };
+    }
+    if (year) {
+      const startOfYear = new Date(`${year}-01-01T00:00:00.000Z`);
+      const endOfYear = new Date(`${year}-12-31T23:59:59.999Z`);
+      query.date = { $gte: startOfYear, $lte: endOfYear };
+    }
+
+    console.log("Generated Query:", query);
+
+    // Fetch matching events
+    const events = await Event.find(query);
+
+    if (!events || events.length === 0) {
+      return res.status(404).json({ message: "No events found with the specified criteria." });
+    }
+
+    // Generate reports for each matching event
+    const reportData = events.map((event) => {
+      // Ensure the date is valid
+      const eventYear = event.date instanceof Date
+        ? event.date.getFullYear()
+        : new Date(event.date)?.getFullYear() || "N/A";
+
+      // Task Stats
+      const totalTasks = event.tasks?.length || 0;
+      const completedTasks = event.tasks?.filter(task => task.status === "Completed").length || 0;
+      const taskCompletionRate = totalTasks ? ((completedTasks / totalTasks) * 100).toFixed(2) : 0;
+
+      // Budget Analysis
+      const totalBudget = event.tasks?.reduce((sum, task) => sum + (task.budget || 0), 0);
+
+      // Attendance Stats (Only for Limited Entry Events)
+      let totalRSVP = 0;
+      let totalAttended = 0;
+      let attendancePercentage = 0;
+
+      if (event.eventType === "limited-entry" && event.attendees) {
+        totalRSVP = event.attendees?.length || 0;
+        totalAttended = event.attendees?.filter(email => email !== "").length || 0;
+        attendancePercentage = totalRSVP ? ((totalAttended / totalRSVP) * 100).toFixed(2) : 0;
+      }
+
+      return {
+        eventName: event.eventName,
+        year: eventYear,
+        team: event.team,
+        eventType: event.eventType,
+        totalRSVP,
+        totalAttended,
+        attendancePercentage,
+        totalTasks,
+        completedTasks,
+        taskCompletionRate,
+        totalBudget,
+      };
+    });
+    console.log("Report Data:", reportData);
+    res.status(200).json(reportData);
+  } catch (error) {
+    console.error("Error generating report:", error);
+    res.status(500).json({ error: error.message });
+  }
+};

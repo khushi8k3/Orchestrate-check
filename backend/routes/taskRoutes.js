@@ -3,7 +3,7 @@ const { getTasks, updateTaskStatus } = require("../controllers/taskController");
 
 const router = express.Router();
 
-// ✅ ADD THIS: Route to fetch tasks
+//Route to fetch tasks
 router.get("/", getTasks);
 
 // PUT /api/tasks/status (Update Task Status)

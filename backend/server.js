@@ -17,14 +17,13 @@ app.use(bodyParser.json());
 
 
 // MongoDB Connection
-mongoose
-    .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log("Connected to MongoDB"))
-    .catch((error) => console.error("MongoDB connection error:", error));
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB Connected"))
+  .catch(err => console.log(err));
 
 // Define Routes After Middleware
 app.use("/api/auth", authRoutes);
-app.use("/api/events", eventRoutes);  // Use /api/events for event-related routes
+app.use("/api/events", eventRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/payment", paymentRoutes);
