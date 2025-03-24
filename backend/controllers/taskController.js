@@ -44,3 +44,45 @@ exports.updateTaskStatus = async (req, res) => {
     res.status(500).json({ message: "Error updating task status: " + error.message });
   }
 };
+
+exports.getTasksByAssignee = async (req, res) => {
+  try {
+    const userEmail = req.headers["user-email"];
+
+    if (!userEmail) {
+      return res.status(400).json({ message: "User email is required in headers" });
+    }
+
+    // Fetch tasks where the assignee matches the logged-in user
+    const tasks = await Task.find({ assignee: userEmail }).sort({
+      deadline: 1,
+      createdAt: 1,
+    });
+
+    if (tasks.length === 0) {
+      return res.status(404).json({ message: "No tasks found for this employee" });
+    }
+
+    res.status(200).json(tasks);
+  } catch (error) {
+    console.error("Error fetching tasks:", error.message);
+    res.status(500).json({ message: "Error fetching tasks: " + error.message });
+  }
+};
+
+exports.getTaskById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const task = await Task.findById(id);
+
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    res.status(200).json(task);
+  } catch (error) {
+    console.error("Error fetching task details:", error.message);
+    res.status(500).json({ message: "Error fetching task details: " + error.message });
+  }
+};
