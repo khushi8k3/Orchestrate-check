@@ -69,6 +69,12 @@ h2, h3 {
     background-repeat: no-repeat;
 }
 
+.error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
 /* Button Styling */
 .task-container button {
     background-color: #dc3545;

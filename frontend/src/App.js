@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/Login";
-import EventFeed from "./components/EventFeed";
-import EventForm from "./components/EventForm";
-import Navbar from "./components/Navbar";
-import RazorpayButton from "./components/RazorpayButton";
-import DetailedEventReport from "./components/DetailedEventReport";
-import ComprehensiveReport from "./components/ComprehensiveReport";
+import EventFeed from "./components/Feed/EventFeed";
+import EventForm from "./components/Feed/EventForm";
+import Navbar from "./components/Feed/Navbar";
+import RazorpayButton from "./components/Feed/RazorpayButton";
+import DetailedEventReport from "./components/Reports/DetailedEventReport";
+import ComprehensiveReport from "./components/Reports/ComprehensiveReport";
+import Dashboard from "./components/Event Creator Tasks/pages/Dashboard";
+import TaskDetails from "./components/Event Creator Tasks/pages/TaskDetails";
+import { TaskContextProvider } from "./components/Event Creator Tasks/context/TaskContext";
 import "./styles/App.css";
 
 function App() {
@@ -27,53 +30,64 @@ function App() {
     };
 
     return (
-        <Router>
-            {/* Render Navbar only if user is logged in */}
-            {loggedInUser && <Navbar handleLogout={handleLogout} userRole={loggedInUser?.role} />}
-            <Routes>
-                <Route
-                    path="/"
-                    element={loggedInUser ? <Navigate to="/feed" replace /> : <Login setLoggedInUser={setLoggedInUser} />}
-                />
-                <Route
-                    path="/feed"
-                    element={loggedInUser ? (
-                        <div>
-                            <EventFeed loggedInUser={loggedInUser} />
-                            <h2>Pay to RSVP for the event</h2>
-                            <RazorpayButton amount={100} />
-                        </div>
-                    ) : <Navigate to="/" replace />}
-                />
-                <Route
-                    path="/create-event"
-                    element={loggedInUser ? <EventForm /> : <Navigate to="/" replace />}
-                />
-                <Route
-                    path="/reports"
-                    element={loggedInUser ? (
-                        <div className="app-container">
-                            <h1>Event Reports Dashboard</h1>
-                            <div className="toggle-buttons">
-                                <button
-                                    onClick={() => setView('detailed')}
-                                    className={view === 'detailed' ? 'active' : ''}
-                                >
-                                    Detailed Report
-                                </button>
-                                <button
-                                    onClick={() => setView('comprehensive')}
-                                    className={view === 'comprehensive' ? 'active' : ''}
-                                >
-                                    Comprehensive Report
-                                </button>
+        <TaskContextProvider>
+            <Router>
+                {/* Render Navbar only if user is logged in */}
+                {loggedInUser && <Navbar handleLogout={handleLogout} userRole={loggedInUser?.role} />}
+                <Routes>
+                    <Route
+                        path="/"
+                        element={loggedInUser ? <Navigate to="/feed" replace /> : <Login setLoggedInUser={setLoggedInUser} />}
+                    />
+                    <Route
+                        path="/feed"
+                        element={loggedInUser ? (
+                            <div>
+                                <EventFeed loggedInUser={loggedInUser} />
+                                <h2>Pay to RSVP for the event</h2>
+                                <RazorpayButton amount={100} />
                             </div>
-                            {view === 'detailed' ? <DetailedEventReport /> : <ComprehensiveReport />}
-                        </div>
-                    ) : <Navigate to="/" replace />}
-                />
-            </Routes>
-        </Router>
+                        ) : <Navigate to="/" replace />}
+                    />
+                    <Route
+                        path="/create-event"
+                        element={loggedInUser ? <EventForm /> : <Navigate to="/" replace />}
+                    />
+                    <Route
+                        path="/reports"
+                        element={loggedInUser ? (
+                            <div className="app-container">
+                                <h1>Event Reports Dashboard</h1>
+                                <div className="toggle-buttons">
+                                    <button
+                                        onClick={() => setView('detailed')}
+                                        className={view === 'detailed' ? 'active' : ''}
+                                    >
+                                        Detailed Report
+                                    </button>
+                                    <button
+                                        onClick={() => setView('comprehensive')}
+                                        className={view === 'comprehensive' ? 'active' : ''}
+                                    >
+                                        Comprehensive Report
+                                    </button>
+                                </div>
+                                {view === 'detailed' ? <DetailedEventReport /> : <ComprehensiveReport />}
+                            </div>
+                        ) : <Navigate to="/" replace />}
+                    />
+                    {/* Manage Your Events Page (Pending Tasks) */}
+                    <Route
+                        path="/manage-events"
+                        element={loggedInUser ? <Dashboard /> : <Navigate to="/" replace />}
+                    />
+                    <Route
+                        path="/tasks/:id"
+                        element={loggedInUser ? <TaskDetails /> : <Navigate to="/" replace />}
+                    />
+                </Routes>
+            </Router>
+        </TaskContextProvider>
     );
 }
 

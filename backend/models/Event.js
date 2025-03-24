@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const taskSchema = require("./Task");
 
 const eventSchema = new mongoose.Schema({
     eventName: { type: String, required: true },
@@ -12,7 +11,7 @@ const eventSchema = new mongoose.Schema({
     attendees: { type: [String], default: [] },
     team: { type: String, default: "" },
     isPaid: { type: Boolean, default: false },
-    tasks: [taskSchema] // Embedded tasks array
+    creator: {type: String,required: true,}
 });
 
 module.exports = mongoose.model("Event", eventSchema);
