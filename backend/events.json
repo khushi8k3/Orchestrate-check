@@ -1,0 +1,252 @@
+[{
+    "_id": {
+      "$oid": "67d3aa7fa3230126f64d7942"
+    },
+    "eventName": "Annual Tech Summit",
+    "eventType": "firm-wide",
+    "date": {
+      "$date": "2025-10-12T00:00:00.000Z"
+    },
+    "venue": "Auditorium",
+    "description": "Tech innovations and talks",
+    "availableSlots": null,
+    "attendees": [],
+    "team": "",
+    "isPaid": false,
+    "tasks": [
+      {
+        "taskName": "Oversee technical setup",
+        "assignedTo": "anushka.sarkar@desisascendeducare.in",
+        "deadline": {
+          "$date": "2025-10-01T00:00:00.000Z"
+        },
+        "budget": 1000,
+        "status": "Pending"
+      },
+      {
+        "taskName": "Manage HR coordination",
+        "assignedTo": "khyathi.gutta@desisascendeducare.in",
+        "deadline": {
+          "$date": "2025-10-05T00:00:00.000Z"
+        },
+        "budget": 800,
+        "status": "Pending"
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67d3aa7fa3230126f64d7943"
+    },
+    "eventName": "Tech Strategy Workshop",
+    "eventType": "team-specific",
+    "date": {
+      "$date": "2025-07-07T00:00:00.000Z"
+    },
+    "venue": "Conference Room 3",
+    "description": "Advanced marketing techniques",
+    "availableSlots": null,
+    "attendees": [],
+    "team": "Tech",
+    "isPaid": false,
+    "tasks": [
+      {
+        "taskName": "Develop interactive demos",
+        "assignedTo": "anushka.sarkar@desisascendeducare.in",
+        "deadline": {
+          "$date": "2025-07-06T00:00:00.000Z"
+        },
+        "budget": 500,
+        "status": "Pending"
+      },
+      {
+        "taskName": "Handle employee invitations",
+        "assignedTo": "khyathi.gutta@desisascendeducare.in",
+        "deadline": {
+          "$date": "2025-07-07T00:00:00.000Z"
+        },
+        "budget": null,
+        "status": "Pending"
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67d3aa7fa3230126f64d7944"
+    },
+    "eventName": "Team Outing",
+    "eventType": "limited-entry",
+    "date": {
+      "$date": "2025-09-09T00:00:00.000Z"
+    },
+    "venue": "Resort",
+    "description": "Fun team bonding",
+    "availableSlots": 17,
+    "attendees": [
+      "Alice",
+      "Charlie",
+      "Khyathi Gutta"
+    ],
+    "team": "",
+    "isPaid": true,
+    "tasks": [
+      {
+        "taskName": "Organize entertainment",
+        "assignedTo": "anushka.sarkar@desisascendeducare.in",
+        "deadline": {
+          "$date": "2025-08-28T00:00:00.000Z"
+        },
+        "budget": 1200,
+        "status": "Pending"
+      },
+      {
+        "taskName": "Oversee team arrangements",
+        "assignedTo": "khyathi.gutta@desisascendeducare.in",
+        "deadline": {
+          "$date": "2025-08-30T00:00:00.000Z"
+        },
+        "budget": 600,
+        "status": "Pending"
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67d5504aa9d8eed023f10f81"
+    },
+    "eventName": "Crafts Workshop",
+    "eventType": "limited-entry",
+    "date": {
+      "$date": "2025-03-27T00:00:00.000Z"
+    },
+    "description": "Arts and Crafts Workshop",
+    "availableSlots": 29,
+    "ticketPrice": 500,
+    "attendees": [
+      "Khyathi Gutta"
+    ],
+    "team": "",
+    "isPaid": true,
+    "tasks": [
+      {
+        "taskName": "Book Venue",
+        "description": "Decide on a venue for the workshop",
+        "assignedToEmail": "anushka.sarkar@desisascendeducare.in",
+        "deadline": {
+          "$date": "2025-03-20T00:00:00.000Z"
+        },
+        "budget": 15000,
+        "status": "Pending",
+        "_id": {
+          "$oid": "67d5504aa9d8eed023f10f82"
+        }
+      }
+    ],
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "67d910650f592fdf0560a666"
+    },
+    "eventName": "Tech Conference",
+    "eventType": "limited-entry",
+    "date": {
+      "$date": "2025-04-20T00:00:00.000Z"
+    },
+    "venue": "Tech Hall",
+    "description": "Annual Tech Conference",
+    "availableSlots": 98,
+    "ticketPrice": 50,
+    "attendees": [
+      "Alice",
+      "Khyathi Gutta"
+    ],
+    "team": "",
+    "isPaid": true,
+    "tasks": [
+      {
+        "taskName": "Setup",
+        "description": "Prepare the venue",
+        "assignedToEmail": "anushka.sarkar@desisascendeducare.in",
+        "budget": null,
+        "status": "Pending",
+        "_id": {
+          "$oid": "67d910650f592fdf0560a667"
+        }
+      },
+      {
+        "taskName": "Registration",
+        "description": "Manage registrations",
+        "assignedToEmail": "anushka.sarkar@desisascendeducare.in",
+        "budget": null,
+        "status": "Pending",
+        "_id": {
+          "$oid": "67d910650f592fdf0560a668"
+        }
+      }
+    ],
+    "__v": 1
+  },
+  {
+    "_id": {
+      "$oid": "67d96b36f28338d69de149f6"
+    },
+    "eventName": "Guest Lecture",
+    "eventType": "firm-wide",
+    "date": {
+      "$date": "2025-03-27T00:00:00.000Z"
+    },
+    "venue": "Auditorium",
+    "description": "Guest Lecture ",
+    "availableSlots": null,
+    "ticketPrice": null,
+    "attendees": [],
+    "team": "",
+    "isPaid": false,
+    "tasks": [
+      {
+        "taskName": "Book Auditorium",
+        "description": "Book first floor auditorium",
+        "assignedToEmail": "anushka.sarkar@desisascendeducare.in",
+        "budget": null,
+        "status": "Pending",
+        "_id": {
+          "$oid": "67d96b36f28338d69de149f7"
+        }
+      }
+    ],
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "67d981ea94f5944a70248d33"
+    },
+    "eventName": "Team Dinner",
+    "eventType": "team-specific",
+    "date": {
+      "$date": "2025-03-27T00:00:00.000Z"
+    },
+    "venue": "Restaurant",
+    "description": "Team Dinner",
+    "availableSlots": null,
+    "ticketPrice": null,
+    "attendees": [],
+    "team": "Tech",
+    "isPaid": false,
+    "tasks": [
+      {
+        "taskName": "Send Invitations",
+        "description": "Send invitations to team members",
+        "assignedToEmail": "anushka.sarkar@desisascendeducare.in",
+        "deadline": {
+          "$date": "2025-03-20T00:00:00.000Z"
+        },
+        "budget": 20,
+        "status": "Pending",
+        "_id": {
+          "$oid": "67d981ea94f5944a70248d34"
+        }
+      }
+    ],
+    "__v": 0
+  }]
