@@ -107,35 +107,56 @@ body {
     transform: translateY(-5px);
   }
   
-  /* Event Details */
-  .event-details p {
-    margin: 8px 0;
-    color: #34495e;
-  }
-  
   .event-details strong {
     color: #2c3e50;
   }
   
-  /* Chart Container */
   .chart-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: column;  /* Stacks charts vertically */
+    align-items: center; /* Centers charts */
+    width: 100%;
     margin-top: 20px;
-    overflow-x: auto; /* Enable horizontal scrolling if necessary */
-  }
-  
-  .chart {
-    flex: 1;
-    min-width: 140px;
-    height: 200px;
-  }
-  
-  canvas {
-    border-radius: 8px;
-    object-fit: contain; /* Ensures the entire chart is visible */
-  }
-  
+}
+
+.chart-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px; /* Adds spacing to prevent overlap */
+  box-sizing: border-box;
+}
+
+.chart {
+  width: 100% !important;
+  max-width: 500px; /* Prevents charts from being too large */
+  height: auto !important;
+}
+
+.event-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  justify-content: center;
+  padding: 24px;
+  margin-bottom: 20px; /* Adds spacing between event cards */
+  width: 100%;
+  max-width: 900px;
+  box-sizing: border-box;
+}
+
+.event-details {
+  text-align: left;
+  width: 100%;
+  margin: 8px 0;
+  color: #34495e;
+}
+
+canvas {
+  object-fit: contain;
+}
+
   /* Download Buttons */
   button.download-btn {
     margin-top: 20px;

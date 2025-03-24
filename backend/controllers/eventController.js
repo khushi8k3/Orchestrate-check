@@ -167,13 +167,11 @@ exports.unRSVP = async (req, res) => {
     }
 };
 
-// Get Detailed Event Report
 exports.getDetailedReport = async (req, res) => {
     try {
         const { eventName, year, team } = req.query;
         const query = {};
 
-        // Dynamically apply filters
         if (eventName) {
             query.eventName = { $regex: new RegExp(`^${eventName}$`, "i") };
         }
@@ -188,17 +186,13 @@ exports.getDetailedReport = async (req, res) => {
 
         console.log("Generated Query:", query);
 
-        // Fetch matching events
         const events = await Event.find(query);
-
-        if (!events || events.length === 0) {
+        if (!events.length) {
             return res.status(404).json({ message: "No events found with the specified criteria." });
         }
 
-        // Generate reports for each matching event
         const reportData = await Promise.all(events.map(async (event) => {
-            // Fetch related tasks from the Task collection
-            const tasks = await Task.find({ eventName: event.eventName });
+            const tasks = await Task.find({ eventID: event._id });
 
             const totalTasks = tasks.length;
             const completedTasks = tasks.filter(task => task.status === "Completed").length;
@@ -206,6 +200,7 @@ exports.getDetailedReport = async (req, res) => {
             const totalBudget = tasks.reduce((sum, task) => sum + (task.budget || 0), 0);
 
             return {
+                eventID: event._id,
                 eventName: event.eventName,
                 year: event.date?.getFullYear(),
                 team: event.team,
@@ -214,6 +209,15 @@ exports.getDetailedReport = async (req, res) => {
                 completedTasks,
                 taskCompletionRate,
                 totalBudget,
+                tasks: tasks.map(task => ({
+                    taskName: task.taskName,
+                    description: task.description,
+                    status: task.status,
+                    budget: task.budget,
+                    creator: task.creator,
+                    assignee: task.assignee,
+                    deadline: task.deadline,
+                }))
             };
         }));
 
@@ -223,6 +227,7 @@ exports.getDetailedReport = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
 
 // Get Compiled Event Report
 exports.getCompiledReport = async (req, res) => {

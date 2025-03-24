@@ -8,6 +8,7 @@ const eventSchema = new mongoose.Schema({
     description: { type: String, required: true },
     availableSlots: { type: Number }, // Only required for limited-entry events, validated at application level
     ticketPrice: { type: Number }, // Only for limited-entry events, validated at application level
+    budget: { type: Number },
     attendees: { type: [String], default: [] },
     team: { type: String, default: "" },
     isPaid: { type: Boolean, default: false },

@@ -98,6 +98,7 @@ const DetailedEventReport = () => {
                   <p><strong>Total Budget:</strong> ₹{event.totalBudget}</p>
                 </div>
                 <div className="chart-container">
+                <div className="chart-wrapper">
                   <Pie
                     className="chart"
                     data={{
@@ -124,6 +125,8 @@ const DetailedEventReport = () => {
                     }}
                     options={chartOptions}
                   />
+                  </div>
+                  <div className="chart-wrapper">
                   <Bar
                     className="chart"
                     data={{
@@ -136,6 +139,7 @@ const DetailedEventReport = () => {
                     }}
                     options={chartOptions}
                   />
+                  </div>
                 </div>
               </div>
             ))}
