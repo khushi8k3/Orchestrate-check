@@ -1,0 +1,51 @@
+/* Smaller Calendar with Blue Theme */
+.calendar-container {
+    width: 90%;
+    max-width: 1000px;
+    height: 550px; 
+    margin: 0 auto; 
+    padding: 20px;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: #f0f8ff;   /* Light blue background */
+    border-radius: 12px;
+}
+
+/* Calendar Header */
+.rbc-toolbar {
+    background: #007bff;    /* Blue header */
+    color: #fff;
+    border-radius: 8px 8px 0 0;
+    padding: 10px;
+}
+
+.rbc-btn-group > button {
+    background: #007bff;    /* Blue buttons */
+    color: #fff;
+    border: 1px solid #007bff;
+    transition: 0.3s;
+}
+
+.rbc-btn-group > button:hover {
+    background: #0056b3;   /* Darker blue hover */
+    color: #fff;
+}
+
+/* Event Styling */
+.rbc-event {
+    background: #1e90ff;     /* Event color */
+    color: white;
+    border-radius: 4px;
+    padding: 5px;
+    font-size: 14px;
+}
+
+.rbc-today {
+    background: #e0f7fa !important;  /* Light blue for today */
+}
+
+/* Text and labels */
+.rbc-calendar {
+    font-size: 14px;
+    color: #333;
+}
