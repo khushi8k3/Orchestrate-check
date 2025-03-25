@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect , useCallback} from 'react';
 import axios from 'axios';
 import { Bar, Pie } from 'react-chartjs-2';
 import jsPDF from 'jspdf';
@@ -36,8 +36,8 @@ const ComprehensiveReport = () => {
   const [error, setError] = useState('');
   const reportRef = useRef();
 
-  // Fetch the aggregated report data
-  const fetchReport = async () => {
+  //  Fetch Report Function
+  const fetchReport = useCallback(async (isInitialLoad = false) => {
     setLoading(true);
     setError('');
     try {
@@ -46,19 +46,20 @@ const ComprehensiveReport = () => {
       if (team) params.team = team;
       if (year) params.year = year;
       if (eventType) params.eventType = eventType;
-
+  
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/compiledReport`,
         { params }
       );
+  
       if (!response.data || !Array.isArray(response.data)) {
         throw new Error('Invalid data format from API.');
       }
-
-      // Aggregate events by year
+  
+      // Aggregate events by year and type
       const aggregatedData = response.data.reduce((acc, cur) => {
-        const key = `${cur.year}-${cur.eventType}`; // Grouping key based on year & event type
-
+        const key = `${cur.year}-${cur.eventType}`;
+  
         if (!acc[key]) {
           acc[key] = {
             year: cur.year,
@@ -69,29 +70,35 @@ const ComprehensiveReport = () => {
             totalBudget: 0
           };
         }
-
-        acc[key].eventCount += cur.eventCount || 1; // Sum event counts
-        acc[key].totalBudget += cur.totalBudget || 0; // Sum budgets
-        if (cur.eventName) acc[key].eventNames.push(cur.eventName); // Collect event names
-
+  
+        acc[key].eventCount += cur.eventCount || 1;
+        acc[key].totalBudget += Number(cur.totalBudget) || 0; // Sum totalBudget correctly
+        if (cur.eventName) acc[key].eventNames.push(cur.eventName);
+  
         return acc;
       }, {});
-
-      // Convert aggregated object into an array with safe join
+  
+      // Convert to array and format data
       const finalData = Object.values(aggregatedData).map(item => ({
         ...item,
         eventNames: Array.isArray(item.eventNames)
           ? item.eventNames.join(', ')
           : 'N/A'
       }));
-
+  
       setReportData(finalData);
+      console.log('API Response:', finalData);
     } catch (err) {
       console.error('Error fetching compiled report:', err);
       setError('No data found for the given criteria.');
     }
     setLoading(false);
-  };
+  }, [eventName, team, year, eventType]);
+
+  // Call fetchReport once on initial load
+  useEffect(() => {
+    fetchReport(true);
+  }, [fetchReport]);
 
   const barOptions = {
     responsive: true,
@@ -144,31 +151,31 @@ const ComprehensiveReport = () => {
   };
 
   /* Prepare data for aggregated charts */
-  // 1) Event Count by Year
-  const eventsPerYear = reportData.reduce((acc, cur) => {
-    const yr = cur.year;
-    acc[yr] = (acc[yr] || 0) + cur.eventCount;
-    return acc;
-  }, {});
-  const years = Object.keys(eventsPerYear);
-  const eventCounts = Object.values(eventsPerYear);
+ // Event Count by Year
+const eventsPerYear = reportData.reduce((acc, cur) => {
+  const yr = cur.year;
+  acc[yr] = (acc[yr] || 0) + cur.eventCount;
+  return acc;
+}, {});
+const years = Object.keys(eventsPerYear);
+const eventCounts = Object.values(eventsPerYear);
 
-  // 2) Budget by Year
-  const budgetPerYear = reportData.reduce((acc, cur) => {
-    const yr = cur.year;
-    acc[yr] = (acc[yr] || 0) + cur.totalBudget;
-    return acc;
-  }, {});
-  const budgets = years.map(yr => budgetPerYear[yr]);
+// Budget by Year
+const budgetPerYear = reportData.reduce((acc, cur) => {
+  const yr = cur.year;
+  acc[yr] = (acc[yr] || 0) + cur.totalBudget; // Correct budget summation
+  return acc;
+}, {});
+const budgets = years.map(yr => budgetPerYear[yr]);
 
-  // 3) Event Type Distribution (only if eventType not specified)
-  const eventTypeDistribution = reportData.reduce((acc, cur) => {
-    const type = cur.eventType;
-    acc[type] = (acc[type] || 0) + cur.eventCount;
-    return acc;
-  }, {});
-  const eventTypes = Object.keys(eventTypeDistribution);
-  const eventTypeCounts = Object.values(eventTypeDistribution);
+// Event Type Distribution (if eventType not specified)
+const eventTypeDistribution = reportData.reduce((acc, cur) => {
+  const type = cur.eventType;
+  acc[type] = (acc[type] || 0) + cur.eventCount;
+  return acc;
+}, {});
+const eventTypes = Object.keys(eventTypeDistribution);
+const eventTypeCounts = Object.values(eventTypeDistribution);
 
   return (
     <div>
@@ -242,7 +249,7 @@ const ComprehensiveReport = () => {
 
           {/* Aggregated Charts */}
           <div className="charts">
-            <h3>Events Count per Year</h3>
+          <h3>Events Count per Year</h3>
             <div className="chart-container" style={{ height: '300px' }}>
               <Bar
                 className="chart"
@@ -261,10 +268,7 @@ const ComprehensiveReport = () => {
             </div>
 
             <h3>Total Budget per Year (₹)</h3>
-            <div
-              className="chart-container"
-              style={{ height: '300px', marginTop: '20px' }}
-            >
+            <div className="chart-container" style={{ height: '300px', marginTop: '20px' }}>
               <Bar
                 className="chart"
                 data={{
@@ -280,15 +284,12 @@ const ComprehensiveReport = () => {
                 options={barOptions}
               />
             </div>
-
+            
             {/* Only show the pie chart if eventType filter is not specified */}
             {!eventType && (
               <>
                 <h3>Event Type Distribution</h3>
-                <div
-                  className="chart-container"
-                  style={{ height: '300px', marginTop: '20px' }}
-                >
+                <div className="chart-container" style={{ height: '300px', marginTop: '20px' }}>
                   <Pie
                     className="chart"
                     data={{
@@ -297,12 +298,7 @@ const ComprehensiveReport = () => {
                         {
                           label: 'Event Type Distribution',
                           data: eventTypeCounts,
-                          backgroundColor: [
-                            '#007bff',
-                            '#28a745',
-                            '#ffc107',
-                            '#dc3545'
-                          ]
+                          backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545']
                         }
                       ]
                     }}
@@ -319,19 +315,17 @@ const ComprehensiveReport = () => {
                 if (!acc[type]) {
                   acc[type] = 0;
                 }
-                acc[type] += cur.totalBudget || 0;
+                acc[type] += cur.totalBudget || 0; // Aggregate budget by type
                 return acc;
               }, {});
+
               const typeLabels = Object.keys(budgetByType);
               const typeBudgets = Object.values(budgetByType);
 
               return (
                 <div className="chart-group">
                   <h3>Budget Spent by Event Type</h3>
-                  <div
-                    className="chart-container"
-                    style={{ height: '300px', marginTop: '20px' }}
-                  >
+                  <div className="chart-container" style={{ height: '300px', marginTop: '20px' }}>
                     <Bar
                       className="chart"
                       data={{
@@ -340,12 +334,7 @@ const ComprehensiveReport = () => {
                           {
                             label: 'Total Budget',
                             data: typeBudgets,
-                            backgroundColor: [
-                              '#007bff',
-                              '#28a745',
-                              '#ffc107',
-                              '#dc3545'
-                            ]
+                            backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545']
                           }
                         ]
                       }}
@@ -360,69 +349,54 @@ const ComprehensiveReport = () => {
             })()}
 
             {/* Show team-specific chart only if eventType === 'team-specific' */}
-            {eventType === 'team-specific' && (() => {
-                // Filter only team-specific events
-                const teamSpecific = reportData.filter(item => item.eventType === 'team-specific');
+            {(eventType === 'team-specific'|| !eventType) && (() => {
+              const teamSpecific = reportData.filter(item => item.eventType === 'team-specific');
 
-                // Log the filtered data to inspect it
-                console.log("Filtered Team-Specific Events:", teamSpecific);
-
-                return teamSpecific.map((event, index) => {
-                // Define team-specific colors
+              return teamSpecific.map((event, index) => {
                 const teamColors = {
-                    Operations: '#ffc107',
-                    Marketing: '#007bff',
-                    Finance: '#28a745',
-                    HR: '#dc3545',
-                    Sales: '#17a2b8',
-                    Engineering: '#6f42c1'
+                  Operations: '#ffc107',
+                  Marketing: '#007bff',
+                  Finance: '#28a745',
+                  HR: '#dc3545',
+                  Sales: '#17a2b8',
+                  Engineering: '#6f42c1'
                 };
+
                 const defaultColor = '#343a40';
                 const barColor = teamColors[event.team] || defaultColor;
 
-                // Convert comma-separated eventNames string to array
                 const eventNamesArray = event.eventNames?.split(',') || ['Unnamed Event'];
-                const budgetsArray = Array.isArray(event.totalBudget)
-                ? event.totalBudget
-                : eventNamesArray.map(() => event.totalBudget || 0);
+                const budgetsArray = eventNamesArray.map(() => event.totalBudget || 0);
 
                 return (
-                <div key={index} className="chart-group">
-                    <h3>
-                    {event.team || 'Unknown Team'} - {event.year || 'Unknown Year'}
-                    </h3>
+                  <div key={index} className="chart-group">
+                    <h3>{event.team || 'Unknown Team'} - {event.year || 'Unknown Year'}</h3>
                     <div className="chart-container" style={{ height: '300px', marginTop: '20px' }}>
-                    <Bar
+                      <Bar
                         className="chart"
                         data={{
-                        labels: eventNamesArray,
-                        datasets: [
+                          labels: eventNamesArray,
+                          datasets: [
                             {
-                            label: 'Budget (in Rupees)',
-                            data: budgetsArray,
-                            backgroundColor: barColor
+                              label: 'Budget (in Rupees)',
+                              data: budgetsArray,
+                              backgroundColor: barColor
                             }
-                        ]
+                          ]
                         }}
                         options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: true } },
-                        scales: {
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: { legend: { display: true } },
+                          scales: {
                             y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Budget (Rupees)'
-                            }
+                              beginAtZero: true,
+                              title: { display: true, text: 'Budget (Rupees)' }
                             },
                             x: {
-                            title: {
-                                display: true,
-                                text: 'Event Names'
+                              title: { display: true, text: 'Event Names' }
                             }
-                            }
-                        }
+                          }
                         }}
                       />
                     </div>

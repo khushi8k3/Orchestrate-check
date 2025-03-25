@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef , useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Pie, Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend } from 'chart.js';
@@ -19,13 +19,17 @@ const DetailedEventReport = () => {
   const [error, setError] = useState('');
   const reportRef = useRef();
 
-  const fetchReport = async () => {
+  const fetchReport = useCallback(async (isInitialLoad = false) => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/detailedReport`, {
-        params: { eventName, team, year }
-      });
+      const params = {};
+      if (!isInitialLoad) {
+        if (eventName) params.eventName = eventName;
+        if (team) params.team = team;
+        if (year) params.year = year;
+      }
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/detailedReport`, { params });
       console.log("Response Data:", response.data);
       setReportData(response.data);
     } catch (err) {
@@ -33,7 +37,12 @@ const DetailedEventReport = () => {
       setError("No data found for the given criteria.");
     }
     setLoading(false);
-  };
+  }, [eventName, team, year]);
+
+  // Fetch reports on initial load
+  useEffect(() => {
+    fetchReport(true);
+  }, [fetchReport]);
 
   const chartOptions = {
     responsive: true,
@@ -56,13 +65,14 @@ const DetailedEventReport = () => {
     sheet.columns = [
       { header: "Event Name", key: "eventName", width: 30 },
       { header: "Year", key: "year", width: 10 },
-      { header: "Total RSVP", key: "totalRSVP", width: 15 },
       { header: "Total Attended", key: "totalAttended", width: 20 },
       { header: "Attendance %", key: "attendancePercentage", width: 15 },
       { header: "Total Tasks", key: "totalTasks", width: 15 },
       { header: "Completed Tasks", key: "completedTasks", width: 20 },
+      { header: "In Progress Tasks", key: "inProgressTasks", width: 20 },
+      { header: "Pending Tasks", key: "pendingTasks", width: 20 },
       { header: "Task Completion Rate %", key: "taskCompletionRate", width: 20 },
-      { header: "Total Budget", key: "totalBudget", width: 20 },
+      { header: "Total Budget (₹)", key: "totalBudget", width: 20 },
     ];
     reportData.forEach(event => {
       sheet.addRow(event);
@@ -93,48 +103,56 @@ const DetailedEventReport = () => {
                 <div className="event-details">
                   <p><strong>Event Name:</strong> {event.eventName}</p>
                   <p><strong>Year:</strong> {event.year}</p>
-                  <p><strong>Attendance %:</strong> {event.attendancePercentage}%</p>
+                  <p><strong>Team:</strong> {event.team}</p>
+                  <p><strong>Attendance %:</strong> {event.totalRSVP ? ((event.totalAttended / event.totalRSVP) * 100).toFixed(2) : 0}%</p>
                   <p><strong>Task Completion Rate:</strong> {event.taskCompletionRate}%</p>
-                  <p><strong>Total Budget:</strong> ₹{event.totalBudget}</p>
+                  <p><strong>Total Tasks:</strong> {event.totalTasks}</p>
+                  <p><strong>Completed Tasks:</strong> {event.completedTasks}</p>
+                  <p><strong>In Progress Tasks:</strong> {event.inProgressTasks}</p>
+                  <p><strong>Pending Tasks:</strong> {event.pendingTasks}</p>
                 </div>
                 <div className="chart-container">
-                <div className="chart-wrapper">
-                  <Pie
-                    className="chart"
-                    data={{
-                      labels:event.totalAttended === 0 || event.totalRSVP === 0
-                          ? ['Not Attended']
-                          : event.totalAttended === event.totalRSVP
-                            ? ['Attended']
-                            : ['Attended', 'Not Attended'],
-                      datasets: [{
-                        label: 'Attendance',
-                        data: event.totalRSVP === 0
-                          ? [1]
+                  <div className="chart-wrapper">
+                    <Pie
+                      className="chart"
+                      data={{
+                        labels: event.totalRSVP === 0
+                          ? ['No RSVP']
                           : event.totalAttended === 0
+                            ? ['Not Attended']
+                            : event.totalAttended === event.totalRSVP
+                              ? ['Attended']
+                              : ['Attended', 'Not Attended'],
+                        datasets: [{
+                          label: 'Attendance',
+                          data: event.totalRSVP === 0
                             ? [1]
-                            : event.totalAttended === event.totalRSVP
+                            : event.totalAttended === 0
                               ? [1]
-                              : [event.totalAttended, event.totalRSVP - event.totalAttended],
-                        backgroundColor: event.totalAttended === 0 || event.totalRSVP === 0
-                            ? ['#f44336'] // Red for 0% attendance
-                            : event.totalAttended === event.totalRSVP
-                              ? ['#4caf50'] // Green for 100% attendance
-                              : ['#4caf50', '#f44336']
-                      }]
-                    }}
-                    options={chartOptions}
+                              : event.totalAttended === event.totalRSVP
+                                ? [1]
+                                : [event.totalAttended, event.totalRSVP - event.totalAttended],
+                          backgroundColor: event.totalRSVP === 0
+                            ? ['#d3d3d3'] // Grey if no RSVP
+                            : event.totalAttended === 0
+                              ? ['#f44336'] // Red for no attendance
+                              : event.totalAttended === event.totalRSVP
+                                ? ['#4caf50'] // Green for 100% attendance
+                                : ['#4caf50', '#f44336']
+                        }]
+                      }}
+                      options={chartOptions}
                   />
                   </div>
                   <div className="chart-wrapper">
                   <Bar
                     className="chart"
                     data={{
-                      labels: ['Completed Tasks', 'Pending Tasks'],
+                      labels: ['Completed Tasks', 'In Progress Tasks', 'Pending Tasks'],
                       datasets: [{
                         label: 'Tasks',
-                        data: [event.completedTasks, event.totalTasks - event.completedTasks],
-                        backgroundColor: ['#2196f3', '#ff9800']
+                        data: [event.completedTasks, event.inProgressTasks, event.pendingTasks],
+                        backgroundColor: ['#2196f3', '#ffc107', '#ff9800']
                       }]
                     }}
                     options={chartOptions}

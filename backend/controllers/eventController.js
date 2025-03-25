@@ -1,4 +1,5 @@
 require("dotenv").config();
+const mongoose = require('mongoose');
 const Event = require("../models/Event");
 const Task = require("../models/Task");
 const Employee = require("../models/Employee");
@@ -169,66 +170,85 @@ exports.unRSVP = async (req, res) => {
 
 exports.getDetailedReport = async (req, res) => {
     try {
-        const { eventName, year, team } = req.query;
-        const query = {};
-
-        if (eventName) {
-            query.eventName = { $regex: new RegExp(`^${eventName}$`, "i") };
+      const { eventName, year, team } = req.query;
+      const query = {};
+  
+      // Apply query filters
+      if (eventName) query.eventName = { $regex: new RegExp(`^${eventName}$`, "i") };
+      if (team) query.team = { $regex: new RegExp(`^${team}$`, "i") };
+      if (year) {
+        const startOfYear = new Date(`${year}-01-01T00:00:00.000Z`);
+        const endOfYear = new Date(`${year}-12-31T23:59:59.999Z`);
+        query.date = { $gte: startOfYear, $lte: endOfYear };
+      }
+  
+      console.log("Generated Event Query:", query);
+  
+      const events = await Event.find(query);
+      if (!events.length) {
+        console.log("No events found with the specified criteria.");
+        return res.status(404).json({ message: "No events found with the specified criteria." });
+      }
+  
+      console.log(`Fetched ${events.length} events for detailed report.`);
+  
+      // Generate report for each event
+      const reportData = await Promise.all(events.map(async (event) => {
+        try {
+          if (!mongoose.Types.ObjectId.isValid(event._id)) {
+            console.error(`Invalid ObjectId for event: ${event.eventName}, ID: ${event._id}`);
+            return null;
+          }
+  
+          const eventObjectId = new mongoose.Types.ObjectId(event._id);
+          console.log(`Fetching tasks for event: ${event.eventName}, ID: ${eventObjectId}`);
+  
+          const tasks = await Task.find({ eventID: eventObjectId });
+  
+          console.log(`Tasks fetched for ${event.eventName}:`, tasks.length);
+  
+          const totalTasks = tasks.length;
+          const completedTasks = tasks.filter(task => task.status === "Completed").length;
+          const inProgressTasks = tasks.filter(task => task.status === "In Progress").length;
+          const pendingTasks = tasks.filter(task => task.status === "Pending").length;
+  
+          const taskCompletionRate = totalTasks ? ((completedTasks / totalTasks) * 100).toFixed(2) : 0;
+          const totalAttended = event.attendees?.length || 0;
+          const totalRSVP = event.totalRSVP || 0;
+          const attendancePercentage = totalRSVP
+            ? ((totalAttended / totalRSVP) * 100).toFixed(2)
+            : '0.00';
+  
+          console.log(`Event: ${event.eventName}, Total Tasks: ${totalTasks}, Completed: ${completedTasks}, Pending: ${pendingTasks}, In Progress: ${inProgressTasks}`);
+  
+          return {
+            eventName: event.eventName,
+            year: event.date?.getFullYear(),
+            team: event.team,
+            eventType: event.eventType,
+            totalTasks,
+            completedTasks,
+            inProgressTasks,
+            pendingTasks,
+            taskCompletionRate,
+            totalBudget: event.totalBudget || 0,
+            totalRSVP,
+            totalAttended,
+            attendancePercentage,
+          };
+        } catch (taskError) {
+          console.error(`Error fetching tasks for event ${event.eventName}:`, taskError.message);
+          return null;
         }
-        if (team) {
-            query.team = { $regex: new RegExp(`^${team}$`, "i") };
-        }
-        if (year) {
-            const startOfYear = new Date(`${year}-01-01T00:00:00.000Z`);
-            const endOfYear = new Date(`${year}-12-31T23:59:59.999Z`);
-            query.date = { $gte: startOfYear, $lte: endOfYear };
-        }
-
-        console.log("Generated Query:", query);
-
-        const events = await Event.find(query);
-        if (!events.length) {
-            return res.status(404).json({ message: "No events found with the specified criteria." });
-        }
-
-        const reportData = await Promise.all(events.map(async (event) => {
-            const tasks = await Task.find({ eventID: event._id });
-
-            const totalTasks = tasks.length;
-            const completedTasks = tasks.filter(task => task.status === "Completed").length;
-            const taskCompletionRate = totalTasks ? ((completedTasks / totalTasks) * 100).toFixed(2) : 0;
-            const totalBudget = tasks.reduce((sum, task) => sum + (task.budget || 0), 0);
-
-            return {
-                eventID: event._id,
-                eventName: event.eventName,
-                year: event.date?.getFullYear(),
-                team: event.team,
-                eventType: event.eventType,
-                totalTasks,
-                completedTasks,
-                taskCompletionRate,
-                totalBudget,
-                tasks: tasks.map(task => ({
-                    taskName: task.taskName,
-                    description: task.description,
-                    status: task.status,
-                    budget: task.budget,
-                    creator: task.creator,
-                    assignee: task.assignee,
-                    deadline: task.deadline,
-                }))
-            };
-        }));
-
-        res.status(200).json(reportData);
+      }));
+  
+      res.status(200).json(reportData.filter(data => data !== null));
     } catch (error) {
-        console.error("Error generating detailed report:", error.message);
-        res.status(500).json({ error: error.message });
+      console.error("Error generating detailed report:", error.message);
+      res.status(500).json({ error: error.message });
     }
-};
-
-
+  };
+  
 // Get Compiled Event Report
 exports.getCompiledReport = async (req, res) => {
     try {
@@ -260,27 +280,19 @@ exports.getCompiledReport = async (req, res) => {
             return res.status(404).json({ message: "No events found with the specified criteria." });
         }
 
-        // Generate reports for each matching event
-        const reportData = await Promise.all(events.map(async (event) => {
-            // Fetch related tasks from the Task collection
-            const tasks = await Task.find({ eventName: event.eventName });
-
-            const totalTasks = tasks.length;
-            const completedTasks = tasks.filter(task => task.status === "Completed").length;
-            const taskCompletionRate = totalTasks ? ((completedTasks / totalTasks) * 100).toFixed(2) : 0;
-            const totalBudget = tasks.reduce((sum, task) => sum + (task.budget || 0), 0);
-
+        // Generate reports for each matching event using totalBudget directly from events
+        const reportData = events.map((event) => {
             return {
                 eventName: event.eventName,
                 year: event.date?.getFullYear(),
                 team: event.team,
                 eventType: event.eventType,
-                totalTasks,
-                completedTasks,
-                taskCompletionRate,
-                totalBudget,
+                totalTasks: 0, // Optional if you want task data
+                completedTasks: 0,
+                taskCompletionRate: 0,
+                totalBudget: event.totalBudget || 0, // Accessing directly from event
             };
-        }));
+        });
 
         res.status(200).json(reportData);
     } catch (error) {
