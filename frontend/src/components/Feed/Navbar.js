@@ -29,11 +29,12 @@ function Navbar({ handleLogout, userRole }) {
             {menuOpen && (
                 <div className="nav-dropdown">
                     <button onClick={() => handleNavigation("/feed")}>Home</button>
-                    <button onClick={() => handleNavigation("/manage-events")}>Manage Your Events</button>
                     {userRole === "admin" && (
                         <button onClick={() => handleNavigation("/create-event")}>Create Event</button>
                     )}
                     <button onClick={() => handleNavigation("/reports")}>See Reports</button>
+                    <button onClick={() => handleNavigation("/pending-tasks")}>See Your Tasks</button>
+                    <button onClick={() => handleNavigation("/manage-events")}>Manage Your Events</button>
                     <button onClick={handleLogout}>Logout</button>
                 </div>
             )}

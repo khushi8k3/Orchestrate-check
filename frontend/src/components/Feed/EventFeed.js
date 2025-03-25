@@ -7,9 +7,16 @@ function EventFeed({ loggedInUser }) {
     const [events, setEvents] = useState([]);
 
     useEffect(() => {
+        // Ensure loggedInUser is defined before running effect
+        if (!loggedInUser?.email) return;
+    
         const fetchEvents = async () => {
             const token = localStorage.getItem("token");
-            const user = JSON.parse(localStorage.getItem("user"));
+            const storedUser = localStorage.getItem("user");
+            const user = storedUser ? JSON.parse(storedUser) : null;
+    
+            if (!user) return; // Prevents errors if user is not available
+    
             try {
                 const res = await fetch("http://localhost:5000/api/events", {
                     headers: {
@@ -17,14 +24,18 @@ function EventFeed({ loggedInUser }) {
                         "User-Email": user.email,
                     },
                 });
+    
+                if (!res.ok) throw new Error("Failed to fetch events");
+    
                 const data = await res.json();
                 setEvents(data);
             } catch (error) {
                 console.error("Error fetching events:", error);
             }
         };
+    
         fetchEvents();
-    }, []);
+    }, [loggedInUser?.email]);  //  Prevents dependency array size change
 
     return (
         <div className="event-feed-container">
@@ -35,7 +46,7 @@ function EventFeed({ loggedInUser }) {
                         <p>No upcoming events at the moment.</p>
                     ) : (
                         events.map((event) => (
-                            <div key={event._id} className="event-card">
+                            <div key={event._id || event.id} className="event-card">
                                 <h3>{event.eventName}</h3>
                                 <p>{event.description}</p>
                                 <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString("en-GB")}</p>
@@ -51,7 +62,7 @@ function EventFeed({ loggedInUser }) {
 
                                 {/* RSVP or Payment Button (Only for Limited-Entry Events) */}
                                 {event.eventType === "limited-entry" && (
-                                    event.attendees.includes(loggedInUser.name) ? (
+                                    event.attendees.includes(loggedInUser?.name || "") ? (
                                         <button disabled className="rsvp-button">RSVP’d</button>
                                     ) : (
                                         <RazorpayButton event={event} loggedInUser={loggedInUser} />
@@ -64,7 +75,6 @@ function EventFeed({ loggedInUser }) {
             </div>
 
             <div className="notification-panel">
-                <h2>Notifications</h2>
                 <NotificationPanel loggedInUser={loggedInUser} />
             </div>
         </div>

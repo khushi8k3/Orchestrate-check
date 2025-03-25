@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import io from "socket.io-client";
+import socket from "../../utils/socket"; 
 import "../../styles/NotificationPanel.css";
-
-const socket = io("http://localhost:5000");// Adjust to your backend URL if needed
 
 function NotificationPanel({ loggedInUser }) {
     const [tasks, setTasks] = useState([]);
@@ -11,37 +9,67 @@ function NotificationPanel({ loggedInUser }) {
     useEffect(() => {
         const fetchTasks = async () => {
             const token = localStorage.getItem("token");
+            if (!token) {
+                console.error("Token not found. Please log in again.");
+                return;
+            }
             try {
-                const res = await axios.get("http://localhost:5000/api/tasks", {
+                const res = await axios.get("http://localhost:5000/api/tasks/assigned", {
                     headers: {
                         Authorization: `Bearer ${token}`,
-                        "User-Email": loggedInUser.email,
+                        "user-email": loggedInUser.email,
                     },
                 });
-                console.log("Fetched Tasks:", res.data);  // Debugging log
+                console.log("Fetched Assigned Tasks:", res.data);
                 setTasks(res.data);
             } catch (error) {
-                console.error("Error fetching tasks:", error);
+                console.error("Error fetching assigned tasks:", error);
             }
         };
 
         fetchTasks();
 
-        // WebSocket event listener for real-time task updates
+        // WebSocket for real-time updates
         socket.on("newTask", (task) => {
-            if (task.assignedToEmail === loggedInUser.email) {
-                setTasks((prevTasks) => [...prevTasks, task]);
+            if (task.assignee === loggedInUser.email) {
+                console.log("🔄 New Task Received:", task);
+                setTasks((prevTasks) => {
+                    const isDuplicate = prevTasks.some((prevTask) => prevTask._id === task._id);
+                    return isDuplicate ? prevTasks : [...prevTasks, task];
+                });
             }
         });
 
-        // Polling fallback every 10 seconds
-        const interval = setInterval(fetchTasks, 10000);
+        socket.on("newComment", (commentData) => {
+            const { taskId, author, message } = commentData;
+            console.log("💬 New Comment Received:", commentData);
+
+            setTasks((prevTasks) =>
+                prevTasks.map((task) =>
+                    task._id === taskId
+                        ? { ...task, comments: [...(task.comments || []), { author, message }] }
+                        : task
+                )
+            );
+        });
+
+        socket.on("newEvent", (eventData) => {
+            console.log("📢 New Event Notification:", eventData);
+            
+            if (eventData.eventType === "firm-wide" || eventData.team === loggedInUser.team) {
+                setTasks((prevTasks) => {
+                    const isDuplicate = prevTasks.some((prevTask) => prevTask._id === eventData._id);
+                    return isDuplicate ? prevTasks : [...prevTasks, eventData];
+                });
+            }
+        });
 
         return () => {
-            socket.off("newTask"); // Cleanup WebSocket listener
-            clearInterval(interval); // Cleanup polling
+            socket.off("newTask");
+            socket.off("newComment");
+            socket.off("newEvent");
         };
-    }, [loggedInUser]);
+    }, [loggedInUser.email, loggedInUser.team]);
 
     return (
         <div className="notification-panel">
@@ -49,12 +77,12 @@ function NotificationPanel({ loggedInUser }) {
                 <p>No notifications.</p>
             ) : (
                 <ul>
-                    {tasks.map((task, index) => (
-                        <li key={index}>
-                            <p><strong>{task.taskName}</strong></p>
-                            <p>{task.description}</p>
-                            <p>Status: {task.status}</p>
-                            <p>Deadline: {task.deadline ? new Date(task.deadline).toLocaleDateString() : "No deadline"}</p>
+                    {tasks.map((task) => (
+                        <li key={task._id || Math.random()}>
+                            <p><strong>{task.taskName || task.eventName}</strong></p>
+                            <p>{task.description || "New Event Available!"}</p>
+                            {task.status && <p>Status: {task.status}</p>}
+                            {task.deadline && <p>Deadline: {new Date(task.deadline).toLocaleDateString()}</p>}
                         </li>
                     ))}
                 </ul>

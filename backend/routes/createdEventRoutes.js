@@ -1,7 +1,7 @@
 require("dotenv").config(); // Load environment variables
 const express = require("express");
 const {
-    getAllTasks,
+    getTasks,
     filterTasks,
     getTaskDetails,
     addCommentToTask
@@ -9,7 +9,7 @@ const {
 const router = express.Router();
 
 // Route to get all tasks
-router.get("/", getAllTasks);
+router.get("/", getTasks);
 
 // Route to filter tasks by status or assignee
 router.get("/filter", filterTasks);

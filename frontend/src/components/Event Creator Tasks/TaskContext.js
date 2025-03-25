@@ -1,5 +1,6 @@
-import React, { createContext, useState, useEffect } from 'react';
-import { fetchTasks, fetchTaskById } from '../services/taskService';
+// context/TaskContext.js
+import React, { createContext, useState, useEffect, useCallback } from 'react';
+import { fetchTasks, fetchTaskById } from './taskService';
 
 export const TaskContext = createContext();
 
@@ -8,19 +9,24 @@ export const TaskContextProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch all tasks
-  const loadTasks = async () => {
+  const loadTasks = useCallback(async () => {
     setLoading(true);
     try {
       const data = await fetchTasks();
       setTasks(data);
+      console.log("Fetched tasks successfully:", data);
     } catch (error) {
       console.error('Error loading tasks:', error);
       setError(error.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, []); // No dependencies needed since fetchTasks is a fixed function
+
+  //  Monitor tasks for changes
+  useEffect(() => {
+    console.log("Tasks updated:", tasks);
+  }, [tasks])
 
   // Fetch task details by ID
   const getTaskById = async (id) => {
@@ -35,7 +41,7 @@ export const TaskContextProvider = ({ children }) => {
 
   useEffect(() => {
     loadTasks();
-  }, []);
+  }, [loadTasks]);
 
   return (
     <TaskContext.Provider value={{ tasks, loading, error, loadTasks, getTaskById }}>
