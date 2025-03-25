@@ -35,10 +35,19 @@ function App() {
                 {/* Render Navbar only if user is logged in */}
                 {loggedInUser && <Navbar handleLogout={handleLogout} userRole={loggedInUser?.role} />}
                 <Routes>
-                    <Route
+                    {/* <Route
                         path="/"
                         element={loggedInUser ? <Navigate to="/feed" replace /> : <Login setLoggedInUser={setLoggedInUser} />}
+                    /> */}
+                    <Route
+                        path="/"
+                        element={loggedInUser && window.location.pathname === "/" ? (
+                            <Navigate to="/feed" replace />
+                        ) : (
+                            <Login setLoggedInUser={setLoggedInUser} />
+                        )}
                     />
+
                     <Route
                         path="/feed"
                         element={loggedInUser ? (
