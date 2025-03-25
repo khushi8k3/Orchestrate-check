@@ -33,17 +33,16 @@ function App() {
     };
 
     return (
-        // ✅ Wrap your whole app in context providers
         <TaskContextProvider>
             <TaskProvider>
                 <Router>
                     {loggedInUser && <Navbar handleLogout={handleLogout} userRole={loggedInUser?.role} />}
                     <Routes>
-                        {/* Login and Feed */}
                         <Route
                             path="/"
                             element={loggedInUser ? <Navigate to="/feed" replace /> : <Login setLoggedInUser={setLoggedInUser} />}
                         />
+
                         <Route
                             path="/feed"
                             element={loggedInUser ? (
@@ -55,11 +54,11 @@ function App() {
                             ) : <Navigate to="/" replace />}
                         />
 
-                        {/* Event Creation and Reports */}
                         <Route
                             path="/create-event"
                             element={loggedInUser ? <EventForm /> : <Navigate to="/" replace />}
                         />
+
                         <Route
                             path="/reports"
                             element={loggedInUser ? (
@@ -84,21 +83,21 @@ function App() {
                             ) : <Navigate to="/" replace />}
                         />
 
-                        {/* Event Creator Tasks */}
                         <Route
                             path="/manage-events"
                             element={loggedInUser ? <Dashboard /> : <Navigate to="/" replace />}
                         />
+
                         <Route
                             path="/admin/:id"
                             element={loggedInUser ? <TaskDetails /> : <Navigate to="/" replace />}
                         />
 
-                        {/* Assignee Tasks */}
                         <Route
                             path="/pending-tasks"
                             element={loggedInUser ? <DashboardAssignee /> : <Navigate to="/" replace />}
                         />
+
                         <Route
                             path="/tasks/:id"
                             element={loggedInUser ? <TaskDetailsAssignee /> : <Navigate to="/" replace />}

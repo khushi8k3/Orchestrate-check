@@ -12,9 +12,14 @@ function Navbar({ handleLogout, userRole }) {
     };
 
     const handleNavigation = (path) => {
-        navigate(path);
+        if (path === "/feed") {
+            navigate(path, { replace: true }); // Clears history when going to Home
+        } else {
+            navigate(path);
+        }
         setMenuOpen(false); 
     };
+    
 
     return (
         <div className="navbar">

@@ -4,81 +4,145 @@ import "../../styles/EventFeed.css";
 import NotificationPanel from "./NotificationPanel";
 
 function EventFeed({ loggedInUser }) {
-    const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [starredEvents, setStarredEvents] = useState(new Set());
+  const [filter, setFilter] = useState("All Events");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    useEffect(() => {
-        // Ensure loggedInUser is defined before running effect
-        if (!loggedInUser?.email) return;
-    
-        const fetchEvents = async () => {
-            const token = localStorage.getItem("token");
-            const storedUser = localStorage.getItem("user");
-            const user = storedUser ? JSON.parse(storedUser) : null;
-    
-            if (!user) return; // Prevents errors if user is not available
-    
-            try {
-                const res = await fetch("http://localhost:5000/api/events", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "User-Email": user.email,
-                    },
-                });
-    
-                if (!res.ok) throw new Error("Failed to fetch events");
-    
-                const data = await res.json();
-                setEvents(data);
-            } catch (error) {
-                console.error("Error fetching events:", error);
-            }
-        };
-    
-        fetchEvents();
-    }, [loggedInUser?.email]);  //  Prevents dependency array size change
+  useEffect(() => {
+    if (!loggedInUser?.email) return;
 
-    return (
-        <div className="event-feed-container">
-            <div className="event-feed">
-                <h2 className="upcoming-events-title">Upcoming Events</h2>
-                <div className="event-list">
-                    {events.length === 0 ? (
-                        <p>No upcoming events at the moment.</p>
-                    ) : (
-                        events.map((event) => (
-                            <div key={event._id || event.id} className="event-card">
-                                <h3>{event.eventName}</h3>
-                                <p>{event.description}</p>
-                                <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString("en-GB")}</p>
-                                <p><strong>Venue:</strong> {event.venue}</p>
-                                {event.availableSlots !== null && (
-                                    <p><strong>Available Slots:</strong> {event.availableSlots}</p>
-                                )}
-                                
-                                {/* Show ticket price only if defined */}
-                                {event.ticketPrice !== undefined && (
-                                    <p><strong>Ticket Price:</strong> ₹{event.ticketPrice}</p>
-                                )}
+    const fetchEvents = async () => {
+      const token = localStorage.getItem("token");
+      const storedUser = localStorage.getItem("user");
+      const user = storedUser ? JSON.parse(storedUser) : null;
 
-                                {/* RSVP or Payment Button (Only for Limited-Entry Events) */}
-                                {event.eventType === "limited-entry" && (
-                                    event.attendees.includes(loggedInUser?.name || "") ? (
-                                        <button disabled className="rsvp-button">RSVP’d</button>
-                                    ) : (
-                                        <RazorpayButton event={event} loggedInUser={loggedInUser} />
-                                    )
-                                )}
-                            </div>
-                        ))
-                    )}
+      if (!user) return;
+
+      try {
+        const res = await fetch("http://localhost:5000/api/events", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "User-Email": user.email,
+          },
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch events");
+
+        const data = await res.json();
+        setEvents(data);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
+    };
+
+    fetchEvents();
+  }, [loggedInUser?.email]);
+
+  const toggleStar = (eventId) => {
+    const newStars = new Set(starredEvents);
+    newStars.has(eventId) ? newStars.delete(eventId) : newStars.add(eventId);
+    setStarredEvents(newStars);
+  };
+
+  const filteredEvents = events.filter((event) => {
+    const isStarred = starredEvents.has(event._id);
+    if (filter === "RSVP'd") {
+      return event.attendees.includes(loggedInUser?.name);
+    }
+    if (filter === "Starred") {
+      return isStarred;
+    }
+    return true;
+  }).filter((event) =>
+    event.eventName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className="event-feed-container">
+      {/* Search & Filter Section */}
+      <div className="filter-search-container">
+        <input
+          type="text"
+          placeholder="Search events by name..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+        />
+
+        <div className="filter-dropdown">
+          <button className="filter-button" onClick={() => setDropdownOpen(!dropdownOpen)}>
+            {filter} ▼
+          </button>
+
+          {dropdownOpen && (
+            <div className="dropdown-menu">
+              {["All Events", "RSVP'd", "Starred"].map((option) => (
+                <div key={option} onClick={() => { setFilter(option); setDropdownOpen(false); }}>
+                  {option}
                 </div>
+              ))}
             </div>
-
-            <div className="notification-panel">
-                <NotificationPanel loggedInUser={loggedInUser} />
-            </div>
+          )}
         </div>
-    );
+      </div>
+
+      {/* Layout Wrapper */}
+      <div className="content-wrapper">
+        {/* Event Feed */}
+        <div className="event-feed">
+          <h2 className="upcoming-events-title">Upcoming Events</h2>
+          <div className="event-list">
+            {filteredEvents.length === 0 ? (
+              <p>No matching events found.</p>
+            ) : (
+              filteredEvents.map((event) => (
+                <div key={event._id} className="event-card">
+                  <div className="event-header">
+                    <h3 className="event-title">{event.eventName}</h3>
+                    <span
+                      onClick={() => toggleStar(event._id)}
+                      className={`star-icon ${starredEvents.has(event._id) ? "starred" : ""}`}
+                      title={starredEvents.has(event._id) ? "Unstar" : "Star"}
+                    >
+                      {starredEvents.has(event._id) ? "⭐" : "☆"}
+                    </span>
+                  </div>
+
+                  <p>{event.description}</p>
+                  <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString("en-GB")}</p>
+                  <p><strong>Venue:</strong> {event.venue}</p>
+
+                  {event.availableSlots !== null && (
+                    <p><strong>Available Slots:</strong> {event.availableSlots}</p>
+                  )}
+
+                  {event.ticketPrice !== undefined && (
+                    <p><strong>Ticket Price:</strong> ₹{event.ticketPrice}</p>
+                  )}
+
+                  {event.eventType === "limited-entry" && (
+                    event.attendees.includes(loggedInUser?.name) ? (
+                      <button disabled className="rsvp-button">RSVP’d</button>
+                    ) : (
+                      <RazorpayButton event={event} loggedInUser={loggedInUser} />
+                    )
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Notification Panel */}
+        <div className="notification-panel">
+          <h2>Notifications</h2>
+          <NotificationPanel loggedInUser={loggedInUser} />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default EventFeed;
