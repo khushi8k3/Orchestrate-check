@@ -2,181 +2,199 @@
   1. GLOBAL & RESET
 *************************************************/
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
-  }
-  
-  html, body {
-    width: 100%;
-    height: 100%;
-    background-color: #f6f8fa;
-  }
-  
-  /************************************************
-    2. WRAPPER: FULL-SCREEN SPLIT LAYOUT
-  *************************************************/
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: #f0f4f8;
+}
+
+/************************************************
+  2. WRAPPER: FULL-SCREEN SPLIT LAYOUT
+*************************************************/
+.login-wrapper {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/************************************************
+  3. LEFT SIDE: GRADIENT + ILLUSTRATION
+*************************************************/
+.login-graphic {
+  flex: 1;
+  background: linear-gradient(135deg, #3f87a6, #ebf8e1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.app-header {
+  text-align: center;
+  padding: 20px;
+  max-width: 80%;
+}
+
+.app-title {
+  font-size: 3rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.app-subtitle {
+  font-size: 1.2rem;
+  color: rgba(255,255,255,0.9);
+}
+
+/************************************************
+  4. RIGHT SIDE: FORM CONTAINER
+*************************************************/
+.login-form-container {
+  flex: 1;
+  background-color: #f0f4f8;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  width: 100%;
+  max-width: 450px;
+}
+
+.login-card h2 {
+  font-size: 2rem;
+  color: #3f87a6;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.login-card .subtitle {
+  color: #6c7a98;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 1rem;
+}
+
+/************************************************
+  5. FORM STYLING
+*************************************************/
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+form label {
+  font-weight: 500;
+  color: #444;
+  margin-bottom: 5px;
+  display: block;
+}
+
+form input {
+  padding: 14px 16px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+form input:focus {
+  border-color: #3f87a6;
+  box-shadow: 0 0 0 3px rgba(63, 135, 166, 0.2);
+  outline: none;
+}
+
+/************************************************
+  6. LOGIN BUTTON
+*************************************************/
+.login-btn {
+  background: linear-gradient(135deg, #3f87a6, #5fc3e4);
+  color: #fff;
+  font-size: 1.1rem;
+  padding: 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.login-btn:hover {
+  background: linear-gradient(135deg, #2a6a8b, #47b0d6);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(63, 135, 166, 0.2);
+}
+
+.login-btn:active {
+  transform: translateY(0);
+}
+
+/************************************************
+  7. ERROR MESSAGE
+*************************************************/
+.error-message {
+  color: #e74c3c;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/************************************************
+  8. RESPONSIVE DESIGN
+*************************************************/
+@media (max-width: 768px) {
   .login-wrapper {
-    display: flex;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
+    flex-direction: column;
   }
-  
-  /************************************************
-    3. LEFT SIDE: GRADIENT + ILLUSTRATION
-  *************************************************/
+
   .login-graphic {
-    flex: 1;
-    background: linear-gradient(135deg, #ff9800, #ffa726);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .login-graphic img {
-    width: 35%;
-    max-width: 280px;
+    padding: 40px 20px;
+    flex: none;
     height: auto;
   }
-  
-  /************************************************
-    4. RIGHT SIDE: FORM CONTAINER
-  *************************************************/
+
   .login-form-container {
-    flex: 1;
-    background-color: #ffffff;
-    padding: 60px 50px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    padding: 40px 20px;
   }
-  
-  /************************************************
-    5. HEADINGS & SUBTITLE
-  *************************************************/
-  .login-form-container h2 {
+
+  .app-title {
     font-size: 2.2rem;
-    margin-bottom: 10px;
-    color: #333;
   }
-  
-  .subtitle {
+
+  .app-subtitle {
     font-size: 1rem;
-    color: #888;
-    margin-bottom: 30px;
+  }
+
+  .login-card {
+    padding: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 25px 20px;
   }
   
-  /************************************************
-    6. FORM STYLING
-  *************************************************/
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+  .login-card h2 {
+    font-size: 1.8rem;
   }
-  
-  /* Labels */
-  form label {
-    font-weight: 500;
-    color: #444;
-    margin-bottom: 5px;
-  }
-  
-  /* Inputs: Larger & More Padding */
-  form input {
-    padding: 14px 16px;         /* Moderate padding (not too tall) */
-    font-size: 1rem;            /* Normal text size */
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    width: 80%;                 /* Increase horizontal width */
-    max-width: 500px;           /* Limit how wide it can get */
-  }
-  
-  form input:focus {
-    border-color: #ffa726;
-    box-shadow: 0 0 8px rgba(255, 167, 38, 0.2);
-  }
-  
-  /************************************************
-    7. FORGOT PASSWORD LINK
-  *************************************************/
-  .forgot-password {
-    text-align: right;
-    margin-top: -10px;
-  }
-  
-  .forgot-password a {
-    font-size: 0.9rem;
-    color: #ffa726;
-    text-decoration: none;
-    transition: color 0.3s ease;
-  }
-  
-  .forgot-password a:hover {
-    color: #ff9800;
-  }
-  
-  /************************************************
-    8. LOGIN BUTTON: LARGER
-  *************************************************/
-  .login-btn {
-    background: linear-gradient(135deg, #ffa726, #ff9800);
-    color: #fff;
-    font-size: 1.1rem;
-    padding: 18px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s;
-  }
-  
-  .login-btn:hover {
-    background: linear-gradient(135deg, #ff9800, #fb8c00);
-    transform: scale(1.02);
-  }
-  
-  .login-btn:active {
-    background: linear-gradient(135deg, #fb8c00, #f57c00);
-  }
-  
-  /************************************************
-    9. SIGNUP PROMPT
-  *************************************************/
-  .signup-text {
-    margin-top: 30px;
-    font-size: 0.9rem;
-    color: #666;
-    text-align: center;
-  }
-  
-  .signup-text a {
-    color: #ff9800;
-    text-decoration: none;
-    transition: color 0.3s ease;
-  }
-  
-  .signup-text a:hover {
-    color: #fb8c00;
-  }
-  
-  /************************************************
-    10. RESPONSIVE
-  *************************************************/
-  @media (max-width: 768px) {
-    .login-wrapper {
-      flex-direction: column;
-    }
-  
-    .login-graphic {
-      display: none; /* Hide illustration on smaller screens if needed */
-    }
-  
-    .login-form-container {
-      width: 100%;
-      height: 100%;
-      padding: 40px 30px;
-    }
-  }
+}

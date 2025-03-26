@@ -3,7 +3,7 @@ body {
     font-family: 'Poppins', sans-serif;
     background-color: #f8f9fa;
     margin: 0;
-    padding: 40px 0;
+    /* padding: 40px 0; */
     display: flex;
     justify-content: center;
   }
