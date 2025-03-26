@@ -30,7 +30,7 @@ exports.createOrder = async (req, res) => {
             }
         );
 
-        console.log(" Order Created:", response.data);
+        console.log("✅ Order Created:", response.data);
         res.json(response.data);
     } catch (error) {
         console.error("❌ Razorpay Authentication Error:", error.response?.data || error.message);
@@ -38,9 +38,10 @@ exports.createOrder = async (req, res) => {
     }
 };
 
-
+// Confirm Payment and RSVP
 exports.confirmPayment = async (req, res) => {
-    const { eventId, employeeEmail, razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
+    const { eventId, razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
+    const employeeEmail = req.user.email; // Extract email from authenticated user
 
     try {
         const event = await Event.findById(eventId);
@@ -67,8 +68,8 @@ exports.confirmPayment = async (req, res) => {
             .update(razorpay_order_id + "|" + razorpay_payment_id)
             .digest("hex");
 
-            console.log("🔍 Expected Signature:", expectedSignature);
-            console.log("🔍 Received Signature:", razorpay_signature);
+        console.log("🔍 Expected Signature:", expectedSignature);
+        console.log("🔍 Received Signature:", razorpay_signature);
 
         if (expectedSignature !== razorpay_signature) {
             return res.status(400).json({ message: "Invalid payment signature" });
@@ -84,7 +85,7 @@ exports.confirmPayment = async (req, res) => {
 
         res.status(200).json({ message: "Payment confirmed, RSVP successful", event });
     } catch (error) {
-        console.error("Payment Confirmation Error:", error.message);
+        console.error("❌ Payment Confirmation Error:", error.message);
         res.status(500).json({ message: "Server error", error });
     }
 };

@@ -1,5 +1,6 @@
 const express = require("express");
 const Employee = require("../models/Employee");
+const authenticateUser = require("../middleware/authenticateUser");
 const router = express.Router();
 
 // Get employee by email
