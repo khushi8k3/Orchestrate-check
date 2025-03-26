@@ -5,6 +5,7 @@ import NotificationPanel from "./NotificationPanel";
 
 function EventFeed({ loggedInUser }) {
   const [events, setEvents] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [starredEvents, setStarredEvents] = useState(new Set());
   const [filter, setFilter] = useState("All Events");
@@ -15,7 +16,7 @@ function EventFeed({ loggedInUser }) {
   useEffect(() => {
     if (!loggedInUser?.email) return;
 
-    const fetchEvents = async () => {
+    const fetchEventsAndTasks = async () => {
       const token = localStorage.getItem("token");
       const storedUser = localStorage.getItem("user");
       const user = storedUser ? JSON.parse(storedUser) : null;
@@ -23,23 +24,38 @@ function EventFeed({ loggedInUser }) {
       if (!user) return;
 
       try {
-        const res = await fetch("http://localhost:5000/api/events", {
+        // Fetch Events
+        const eventRes = await fetch("http://localhost:5000/api/events", {
           headers: {
             Authorization: `Bearer ${token}`,
             "User-Email": user.email,
           },
         });
 
-        if (!res.ok) throw new Error("Failed to fetch events");
+        if (!eventRes.ok) throw new Error("Failed to fetch events");
+        const eventData = await eventRes.json();
+        console.log("Fetched Events:", eventData); // Debugging
 
-        const data = await res.json();
-        setEvents(data);
+        // Fetch Tasks
+        const taskRes = await fetch("http://localhost:5000/api/tasks", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "User-Email": user.email,
+          },
+        });
+
+        if (!taskRes.ok) throw new Error("Failed to fetch tasks");
+        const taskData = await taskRes.json();
+        console.log("Fetched Tasks:", taskData); // Debugging
+
+        setEvents(eventData);
+        setTasks(taskData);
       } catch (error) {
-        console.error("Error fetching events:", error);
+        console.error("Error fetching data:", error);
       }
     };
 
-    fetchEvents();
+    fetchEventsAndTasks();
   }, [loggedInUser?.email]);
 
   const toggleStar = (eventId) => {
@@ -48,7 +64,14 @@ function EventFeed({ loggedInUser }) {
     setStarredEvents(newStars);
   };
 
+  // Ensure event ID matches task eventID (convert both to strings)
+  const isEventCompleted = (eventId) => {
+    const eventTasks = tasks.filter((task) => task.eventID?.toString() === eventId?.toString());
+    return eventTasks.length > 0 && eventTasks.every((task) => task.status === "Completed");
+  };
+
   const filteredEvents = events
+    .filter((event) => isEventCompleted(event._id)) // Only show completed events
     .filter((event) => {
       const isStarred = starredEvents.has(event._id);
       if (filter === "RSVP'd") {
