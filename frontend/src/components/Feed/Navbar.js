@@ -16,8 +16,11 @@ function Navbar({ handleLogout, userRole }) {
             navigate(path, { replace: true }); // Clears history when going to Home
         } else {
             navigate(path);
+            setTimeout(() => {
+                window.history.replaceState(null, "", "/feed"); // Replace current history with feed
+            }, 50);
         }
-        setMenuOpen(false); 
+        setMenuOpen(false);
     };
     
     return (
