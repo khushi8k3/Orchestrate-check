@@ -8,8 +8,7 @@ function EventFeed({ loggedInUser }) {
   const [tasks, setTasks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [starredEvents, setStarredEvents] = useState(new Set());
-  const [filter, setFilter] = useState("All Events");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState("All Events");
   const [selectedYear, setSelectedYear] = useState("All Years");
   const [selectedEventType, setSelectedEventType] = useState("All Types");
 
@@ -64,6 +63,7 @@ function EventFeed({ loggedInUser }) {
     setStarredEvents(newStars);
   };
 
+
   // Ensure event ID matches task eventID (convert both to strings)
   const isEventCompleted = (eventId) => {
     const eventTasks = tasks.filter((task) => task.eventID?.toString() === eventId?.toString());
@@ -74,13 +74,16 @@ function EventFeed({ loggedInUser }) {
     .filter((event) => isEventCompleted(event._id)) // Only show completed events
     .filter((event) => {
       const isStarred = starredEvents.has(event._id);
-      if (filter === "RSVP'd") {
+
+      if (selectedFilter === "RSVP'd") {
         return event.attendees.includes(loggedInUser?.name);
       }
-      if (filter === "Starred") {
+
+      if (selectedFilter === "Starred") {
         return isStarred;
       }
-      return true;
+
+      return true; // For "All Events"
     })
     .filter((event) => event.eventName.toLowerCase().includes(searchTerm.toLowerCase()))
     .filter((event) => 
@@ -93,8 +96,11 @@ function EventFeed({ loggedInUser }) {
 
   return (
     <div className="event-feed-container">
-      {/* Search & Filter Section */}
-      <div className="filter-search-container">
+
+      {/* 🔥 Inline Filter & Search Section */}
+      <div className="filter-search-inline">
+
+        {/* 🔍 Search Bar */}
         <input
           type="text"
           placeholder="Search events by name..."
@@ -103,33 +109,33 @@ function EventFeed({ loggedInUser }) {
           className="search-input"
         />
 
-        {/* Filter Dropdown */}
-        <div className="filter-dropdown">
-          <button className="filter-button" onClick={() => setDropdownOpen(!dropdownOpen)}>
-            {filter} ▼
-          </button>
+        {/* Inline Filters beside search bar */}
+        <select
+          className="filter-dropdown"
+          value={selectedFilter}
+          onChange={(e) => setSelectedFilter(e.target.value)}
+        >
+          <option value="All Events">All Events</option>
+          <option value="RSVP'd">RSVP'd</option>
+          <option value="Starred">Starred</option>
+        </select>
 
-          {dropdownOpen && (
-            <div className="dropdown-menu">
-              {["All Events", "RSVP'd", "Starred"].map((option) => (
-                <div key={option} onClick={() => { setFilter(option); setDropdownOpen(false); }}>
-                  {option}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Year Selection Dropdown */}
-        <select className="filter-dropdown" value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
+        <select
+          className="filter-dropdown"
+          value={selectedYear}
+          onChange={(e) => setSelectedYear(e.target.value)}
+        >
           <option value="All Years">All Years</option>
           {[...new Set(events.map(event => new Date(event.date).getFullYear().toString()))].map(year => (
             <option key={year} value={year}>{year}</option>
           ))}
         </select>
 
-        {/* Event Type Selection Dropdown */}
-        <select className="filter-dropdown" value={selectedEventType} onChange={(e) => setSelectedEventType(e.target.value)}>
+        <select
+          className="filter-dropdown"
+          value={selectedEventType}
+          onChange={(e) => setSelectedEventType(e.target.value)}
+        >
           <option value="All Types">All Event Types</option>
           {[...new Set(events.map(event => event.eventType))].map(type => (
             <option key={type} value={type}>{type}</option>
@@ -137,11 +143,14 @@ function EventFeed({ loggedInUser }) {
         </select>
       </div>
 
-      {/* Layout Wrapper */}
+      {/* ✅ Upcoming Events Title Above the Events */}
+      <h2 className="section-title">Upcoming Events</h2>
+
+      {/* 🔥 Layout Wrapper */}
       <div className="content-wrapper">
-        {/* Event Feed */}
+
+        {/* 📅 Event Feed */}
         <div className="event-feed">
-          <h2 className="upcoming-events-title">Upcoming Events</h2>
           <div className="event-list">
             {filteredEvents.length === 0 ? (
               <p>No matching events found.</p>
@@ -163,7 +172,6 @@ function EventFeed({ loggedInUser }) {
                   <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString("en-GB")}</p>
                   <p><strong>Venue:</strong> {event.venue}</p>
 
-                  {/* Show available slots and ticket price for limited-entry events */}
                   {event.eventType === "limited-entry" && (
                     <>
                       {event.availableSlots !== null && (
@@ -173,11 +181,6 @@ function EventFeed({ loggedInUser }) {
                         <p><strong>Ticket Price:</strong> ₹{event.ticketPrice}</p>
                       )}
                     </>
-                  )}
-
-                  {/* Show team for team-specific events */}
-                  {event.eventType === "team-specific" && (
-                    <p><strong>Team:</strong> {event.team}</p>
                   )}
 
                   {event.eventType === "limited-entry" && (
@@ -193,7 +196,7 @@ function EventFeed({ loggedInUser }) {
           </div>
         </div>
 
-        {/* Notification Panel */}
+        {/* 🔔 Notification Panel beside events */}
         <div className="notification-panel">
           <h2>Notifications</h2>
           <NotificationPanel loggedInUser={loggedInUser} />
