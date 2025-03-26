@@ -1,0 +1,53 @@
+.reports-sidebar {
+    width: 250px;
+    background: #f4f4f4;
+    padding: 20px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    margin-bottom: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+.sidebar-btn:hover {
+    background-color: #0056b3;
+}
+
+.reports-sidebar h2 {
+    margin-bottom: 15px;
+}
+
+.reports-sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.reports-sidebar li {
+    margin: 10px 0;
+}
+
+.reports-sidebar a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
+
+.reports-sidebar a:hover {
+    color: #007bff;
+}
+
+.reports-content {
+    flex: 1;
+    padding: 20px;
+}

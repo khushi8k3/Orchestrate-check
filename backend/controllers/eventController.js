@@ -267,51 +267,52 @@ exports.getDetailedReport = async (req, res) => {
 // Get Compiled Event Report
 exports.getCompiledReport = async (req, res) => {
     try {
-        const { eventName, year, team, eventType } = req.query;
-        const query = {};
-
-        // Dynamically apply filters
-        if (eventName) {
-            query.eventName = { $regex: new RegExp(`^${eventName}$`, "i") };
-        }
-        if (team) {
-            query.team = { $regex: new RegExp(`^${team}$`, "i") };
-        }
-        if (eventType) {
-            query.eventType = { $regex: new RegExp(`^${eventType}$`, "i") };
-        }
-        if (year) {
-            const startOfYear = new Date(`${year}-01-01T00:00:00.000Z`);
-            const endOfYear = new Date(`${year}-12-31T23:59:59.999Z`);
-            query.date = { $gte: startOfYear, $lte: endOfYear };
-        }
-
-        console.log("Generated Query:", query);
-
-        // Fetch matching events
-        const events = await Event.find(query);
-
-        if (!events || events.length === 0) {
-            return res.status(404).json({ message: "No events found with the specified criteria." });
-        }
-
-        // Generate reports for each matching event using totalBudget directly from events
-        const reportData = events.map((event) => {
-            return {
-                eventName: event.eventName,
-                year: event.date?.getFullYear(),
-                team: event.team,
-                eventType: event.eventType,
-                totalTasks: 0, // Optional if you want task data
-                completedTasks: 0,
-                taskCompletionRate: 0,
-                totalBudget: event.totalBudget || 0, // Accessing directly from event
-            };
-        });
-
-        res.status(200).json(reportData);
+      const { eventName, year, team, eventType } = req.query;
+      const query = {};
+  
+      // Dynamically apply filters
+      if (eventName) {
+        query.eventName = { $regex: eventName, $options: "i" };
+      }
+      if (team) {
+        query.team = { $regex: new RegExp(`^${team}$`, "i") };
+      }
+      if (eventType) {
+        query.eventType = { $regex: new RegExp(`^${eventType}$`, "i") };
+      }
+      if (year && /^\d{4}$/.test(year)) {
+        const startOfYear = new Date(`${year}-01-01T00:00:00.000Z`);
+        const endOfYear = new Date(`${year}-12-31T23:59:59.999Z`);
+        query.date = { $gte: startOfYear, $lte: endOfYear };
+      } else if (year) {
+        return res.status(400).json({ error: "Invalid year format. Please provide a 4-digit year." });
+      }
+  
+      console.log("Generated Query:", query);
+  
+      // Fetch matching events
+      const events = await Event.find(query);
+  
+      if (!events || events.length === 0) {
+        return res.status(404).json({ message: "No events found with the specified criteria." });
+      }
+  
+      // Generate reports for each matching event using totalBudget directly from events
+      const reportData = events.map((event) => ({
+        eventName: event.eventName,
+        year: event.date?.getFullYear(),
+        team: event.team,
+        eventType: event.eventType,
+        totalTasks: 0,
+        completedTasks: 0,
+        taskCompletionRate: 0,
+        totalBudget: event.totalBudget || 0,
+      }));
+  
+      res.status(200).json(reportData);
     } catch (error) {
-        console.error("Error generating compiled report:", error.message);
-        res.status(500).json({ error: error.message });
+      console.error("Error generating compiled report:", error.message);
+      res.status(500).json({ error: error.message });
     }
-};
+  };
+  

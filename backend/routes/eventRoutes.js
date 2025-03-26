@@ -18,13 +18,13 @@ router.post("/", authenticateUser, createEvent);
 router.get("/", getEvents);
 
 // RSVP to an event
-router.post("/:id/rsvp",authenticateUser, confirmRSVP); 
+router.post("/:id/rsvp",confirmRSVP); 
 
 // Un-RSVP from an event
-router.post("/:id/unrsvp", authenticateUser, unRSVP); 
+router.post("/:id/unrsvp", unRSVP); 
 
 // Detailed and compiled reports
-router.get("/detailedReport", authenticateUser, getDetailedReport);
-router.get("/compiledReport", authenticateUser, getCompiledReport);
+router.get("/detailedReport", getDetailedReport);
+router.get("/compiledReport", getCompiledReport);
 
 module.exports = router;

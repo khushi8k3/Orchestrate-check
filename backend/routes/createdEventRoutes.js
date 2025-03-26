@@ -10,7 +10,7 @@ const authenticateUser = require("../middleware/authenticateUser");
 const router = express.Router();
 
 // Route to get all tasks
-router.get("/",authenticateUser, getTasks);
+router.get("/",getTasks);
 
 // Route to filter tasks by status or assignee
 router.get("/filter", filterTasks);

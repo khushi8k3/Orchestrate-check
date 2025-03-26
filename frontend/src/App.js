@@ -5,8 +5,7 @@ import EventFeed from "./components/Feed/EventFeed";
 import EventForm from "./components/Feed/EventForm";
 import Navbar from "./components/Feed/Navbar";
 import RazorpayButton from "./components/Feed/RazorpayButton";
-import DetailedEventReport from "./components/Reports/DetailedEventReport";
-import ComprehensiveReport from "./components/Reports/ComprehensiveReport";
+import ReportsPage from "./components/Reports/ReportsPage"; // New sidebar-based reports page
 import Dashboard from "./components/Event Creator Tasks/Dashboard";
 import TaskDetails from "./components/Event Creator Tasks/TaskDetails";
 import DashboardAssignee from "./components/Assignee Tasks/Dashboard_Assignee";
@@ -17,7 +16,6 @@ import "./styles/App.css";
 
 function App() {
     const [loggedInUser, setLoggedInUser] = useState(null);
-    const [view, setView] = useState("detailed");
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -59,28 +57,10 @@ function App() {
                             element={loggedInUser ? <EventForm /> : <Navigate to="/" replace />}
                         />
 
+                        {/* Reports Page with Sidebar */}
                         <Route
-                            path="/reports"
-                            element={loggedInUser ? (
-                                <div className="app-container">
-                                    <h1>Event Reports Dashboard</h1>
-                                    <div className="toggle-buttons">
-                                        <button
-                                            onClick={() => setView('detailed')}
-                                            className={view === 'detailed' ? 'active' : ''}
-                                        >
-                                            Detailed Report
-                                        </button>
-                                        <button
-                                            onClick={() => setView('comprehensive')}
-                                            className={view === 'comprehensive' ? 'active' : ''}
-                                        >
-                                            Comprehensive Report
-                                        </button>
-                                    </div>
-                                    {view === 'detailed' ? <DetailedEventReport /> : <ComprehensiveReport />}
-                                </div>
-                            ) : <Navigate to="/" replace />}
+                            path="/reports/*"
+                            element={loggedInUser ? <ReportsPage /> : <Navigate to="/" replace />}
                         />
 
                         <Route

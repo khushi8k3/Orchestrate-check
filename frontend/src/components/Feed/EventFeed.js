@@ -114,12 +114,21 @@ function EventFeed({ loggedInUser }) {
                   <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString("en-GB")}</p>
                   <p><strong>Venue:</strong> {event.venue}</p>
 
-                  {event.availableSlots !== null && (
-                    <p><strong>Available Slots:</strong> {event.availableSlots}</p>
+                  {/* Show available slots and ticket price for limited-entry events */}
+                  {event.eventType === "limited-entry" && (
+                    <>
+                      {event.availableSlots !== null && (
+                        <p><strong>Available Slots:</strong> {event.availableSlots}</p>
+                      )}
+                      {event.ticketPrice !== undefined && (
+                        <p><strong>Ticket Price:</strong> ₹{event.ticketPrice}</p>
+                      )}
+                    </>
                   )}
 
-                  {event.ticketPrice !== undefined && (
-                    <p><strong>Ticket Price:</strong> ₹{event.ticketPrice}</p>
+                  {/* Show team for team-specific events */}
+                  {event.eventType === "team-specific" && (
+                    <p><strong>Team:</strong> {event.team}</p>
                   )}
 
                   {event.eventType === "limited-entry" && (

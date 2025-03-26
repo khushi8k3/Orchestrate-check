@@ -23,13 +23,17 @@ const Dashboard = () => {
     const isCreatorMatch = task.creator === localStorage.getItem('userEmail');
     const statusMatch = statusFilter ? task.status === statusFilter : true;
     const eventMatch = eventFilter ? task.eventName === eventFilter : true;
-
-    return isCreatorMatch && statusMatch && eventMatch;
+    const searchMatch = search
+      ? task.eventName.toLowerCase().includes(search.toLowerCase()) // Case-insensitive substring match
+      : true;
+  
+    return isCreatorMatch && statusMatch && eventMatch && searchMatch;
   });
+  
 
   return (
     <div className="dashboard">
-      <h1>Your Created Tasks</h1>
+      <h1>Manage Your Events</h1>
 
       <div className="filters">
         {/* Search Input */}

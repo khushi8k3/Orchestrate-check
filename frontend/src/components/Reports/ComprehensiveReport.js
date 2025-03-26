@@ -44,7 +44,13 @@ const ComprehensiveReport = () => {
       const params = {};
       if (eventName) params.eventName = eventName;
       if (team) params.team = team;
-      if (year) params.year = year;
+      if (year) {
+        const numericYear = parseInt(year);
+        if (isNaN(numericYear) || numericYear < 1900 || numericYear > new Date().getFullYear()) {
+          throw new Error('Invalid year provided. Please enter a valid year between 1900 and the current year.');
+        }
+        params.year = numericYear;
+      }
       if (eventType) params.eventType = eventType;
   
       const response = await axios.get(
@@ -59,7 +65,6 @@ const ComprehensiveReport = () => {
       // Aggregate events by year and type
       const aggregatedData = response.data.reduce((acc, cur) => {
         const key = `${cur.year}-${cur.eventType}`;
-  
         if (!acc[key]) {
           acc[key] = {
             year: cur.year,
@@ -70,15 +75,12 @@ const ComprehensiveReport = () => {
             totalBudget: 0
           };
         }
-  
         acc[key].eventCount += cur.eventCount || 1;
-        acc[key].totalBudget += Number(cur.totalBudget) || 0; // Sum totalBudget correctly
+        acc[key].totalBudget += Number(cur.totalBudget) || 0;
         if (cur.eventName) acc[key].eventNames.push(cur.eventName);
-  
         return acc;
       }, {});
   
-      // Convert to array and format data
       const finalData = Object.values(aggregatedData).map(item => ({
         ...item,
         eventNames: Array.isArray(item.eventNames)
@@ -90,10 +92,11 @@ const ComprehensiveReport = () => {
       console.log('API Response:', finalData);
     } catch (err) {
       console.error('Error fetching compiled report:', err);
-      setError('No data found for the given criteria.');
+      setError(err.message || 'No data found for the given criteria.');
     }
     setLoading(false);
   }, [eventName, team, year, eventType]);
+  
 
   // Call fetchReport once on initial load
   useEffect(() => {
