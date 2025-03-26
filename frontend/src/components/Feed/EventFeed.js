@@ -9,6 +9,10 @@ function EventFeed({ loggedInUser }) {
   const [starredEvents, setStarredEvents] = useState(new Set());
   const [filter, setFilter] = useState("All Events");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [selectedYear, setSelectedYear] = useState("All Years");
+  const [yearDropdownOpen, setYearDropdownOpen] = useState(false);
+  const [selectedEventType, setSelectedEventType] = useState("All Types");
+  const [eventTypeDropdownOpen, setEventTypeDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (!loggedInUser?.email) return;
@@ -46,18 +50,19 @@ function EventFeed({ loggedInUser }) {
     setStarredEvents(newStars);
   };
 
-  const filteredEvents = events.filter((event) => {
-    const isStarred = starredEvents.has(event._id);
-    if (filter === "RSVP'd") {
-      return event.attendees.includes(loggedInUser?.name);
-    }
-    if (filter === "Starred") {
-      return isStarred;
-    }
-    return true;
-  }).filter((event) =>
-    event.eventName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const eventYears = [...new Set(events.map(event => new Date(event.date).getFullYear()))];
+  const eventTypes = [...new Set(events.map(event => event.eventType))];
+
+  const filteredEvents = events
+    .filter((event) => {
+      const isStarred = starredEvents.has(event._id);
+      if (filter === "RSVP'd") return event.attendees.includes(loggedInUser?.name);
+      if (filter === "Starred") return isStarred;
+      return true;
+    })
+    .filter((event) => event.eventName.toLowerCase().includes(searchTerm.toLowerCase()))
+    .filter((event) => selectedYear === "All Years" || new Date(event.date).getFullYear().toString() === selectedYear)
+    .filter((event) => selectedEventType === "All Types" || event.eventType === selectedEventType);
 
   return (
     <div className="event-feed-container">
@@ -71,6 +76,7 @@ function EventFeed({ loggedInUser }) {
           className="search-input"
         />
 
+        {/* Filter Dropdown */}
         <div className="filter-dropdown">
           <button className="filter-button" onClick={() => setDropdownOpen(!dropdownOpen)}>
             {filter} ▼
@@ -81,6 +87,46 @@ function EventFeed({ loggedInUser }) {
               {["All Events", "RSVP'd", "Starred"].map((option) => (
                 <div key={option} onClick={() => { setFilter(option); setDropdownOpen(false); }}>
                   {option}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Year Selection Dropdown */}
+        <div className="filter-dropdown">
+          <button className="filter-button" onClick={() => setYearDropdownOpen(!yearDropdownOpen)}>
+            {selectedYear} ▼
+          </button>
+
+          {yearDropdownOpen && (
+            <div className="dropdown-menu">
+              <div onClick={() => { setSelectedYear("All Years"); setYearDropdownOpen(false); }}>
+                All Years
+              </div>
+              {eventYears.sort((a, b) => b - a).map((year) => (
+                <div key={year} onClick={() => { setSelectedYear(year.toString()); setYearDropdownOpen(false); }}>
+                  {year}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Event Type Dropdown (Updated) */}
+        <div className="filter-dropdown">
+          <button className="filter-button" onClick={() => setEventTypeDropdownOpen(!eventTypeDropdownOpen)}>
+            {selectedEventType} ▼
+          </button>
+
+          {eventTypeDropdownOpen && (
+            <div className="dropdown-menu">
+              <div onClick={() => { setSelectedEventType("Event Types"); setEventTypeDropdownOpen(false); }}>
+                All Types
+              </div>
+              {eventTypes.map((type) => (
+                <div key={type} onClick={() => { setSelectedEventType(type); setEventTypeDropdownOpen(false); }}>
+                  {type}
                 </div>
               ))}
             </div>
@@ -100,7 +146,13 @@ function EventFeed({ loggedInUser }) {
               filteredEvents.map((event) => (
                 <div key={event._id} className="event-card">
                   <div className="event-header">
-                    <h3 className="event-title">{event.eventName}</h3>
+                    <h3
+                      className="event-title"
+                      onClick={() => setSelectedEventType(event.eventType)}
+                      style={{ cursor: "pointer", color: "#007bff" }}
+                    >
+                      {event.eventName}
+                    </h3>
                     <span
                       onClick={() => toggleStar(event._id)}
                       className={`star-icon ${starredEvents.has(event._id) ? "starred" : ""}`}
@@ -111,6 +163,7 @@ function EventFeed({ loggedInUser }) {
                   </div>
 
                   <p>{event.description}</p>
+                  <p><strong>Type:</strong> {event.eventType}</p>
                   <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString("en-GB")}</p>
                   <p><strong>Venue:</strong> {event.venue}</p>
 
@@ -124,11 +177,6 @@ function EventFeed({ loggedInUser }) {
                         <p><strong>Ticket Price:</strong> ₹{event.ticketPrice}</p>
                       )}
                     </>
-                  )}
-
-                  {/* Show team for team-specific events */}
-                  {event.eventType === "team-specific" && (
-                    <p><strong>Team:</strong> {event.team}</p>
                   )}
 
                   {event.eventType === "limited-entry" && (
