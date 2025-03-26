@@ -138,19 +138,16 @@ function EventForm() {
                         <div className="form-group">
                             <label>Available Slots</label>
                             <input
-                                type="number"
+                                type="text"
                                 placeholder="Available Slots"
                                 value={availableSlots}
                                 onChange={(e) => {
-                                    if (validateNumber(e.target.value)) {
-                                        setAvailableSlots(e.target.value);
-                                        setAvailableSlotsError("");
-                                    } else {
-                                        setAvailableSlotsError("What you have entered is not a number.");
-                                    }
+                                const value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric
+                                setAvailableSlots(value);
                                 }}
-                                style={{ borderColor: availableSlotsError ? "red" : "" }}
+                                required
                             />
+
                             {availableSlotsError && (
                                 <p className="error-message">{availableSlotsError}</p>
                             )}
@@ -158,18 +155,14 @@ function EventForm() {
                         <div className="form-group">
                             <label>Ticket Price (optional)</label>
                             <input
-                                type="number"
+                                type="text"
                                 placeholder="Ticket Price"
                                 value={ticketPrice}
                                 onChange={(e) => {
-                                    if (validateNumber(e.target.value)) {
-                                        setTicketPrice(e.target.value);
-                                        setTicketPriceError("");
-                                    } else {
-                                        setTicketPriceError("What you have entered is not a number.");
-                                    }
+                                const value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric
+                                setTicketPrice(value);
                                 }}
-                                style={{ borderColor: ticketPriceError ? "red" : "" }}
+                                required
                             />
                             {ticketPriceError && (
                                 <p className="error-message">{ticketPriceError}</p>
@@ -232,10 +225,13 @@ function EventForm() {
                                 <p className="error-message">{deadlineError}</p>
                             )}
                             <input
-                                type="number"
+                                type="text" // Change from number to text
                                 placeholder="Budget"
                                 value={task.budget}
-                                onChange={(e) => handleTaskChange(index, "budget", e.target.value)}
+                                onChange={(e) => {
+                                const value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric
+                                handleTaskChange(index, "budget", value);
+                                }}
                             />
                         </div>
                         <button type="button" onClick={() => removeTask(index)}>Remove Task</button>
