@@ -6,8 +6,7 @@
   "email": "alice@example.com",
   "password": "$2b$10$IXPio/P2uWwSzxm0ABaQZ.icoDbRxO4EkCiBgmJY.KHC36pkun3zW",
   "role": "admin",
-  "team": "HR",
-  "tasks": []
+  "team": "HR"
 },
 {
   "_id": {
@@ -17,8 +16,7 @@
   "email": "bob@example.com",
   "password": "$2b$10$IXPio/P2uWwSzxm0ABaQZ.icoDbRxO4EkCiBgmJY.KHC36pkun3zW",
   "role": "employee",
-  "team": "Tech",
-  "tasks": []
+  "team": "Tech"
 },
 {
   "_id": {
@@ -28,8 +26,7 @@
   "email": "charlie@example.com",
   "password": "$2b$10$IXPio/P2uWwSzxm0ABaQZ.icoDbRxO4EkCiBgmJY.KHC36pkun3zW",
   "role": "employee",
-  "team": "Marketing",
-  "tasks": []
+  "team": "Marketing"
 },
 {
   "_id": {
@@ -39,8 +36,7 @@
   "email": "david@example.com",
   "password": "$2b$10$IXPio/P2uWwSzxm0ABaQZ.icoDbRxO4EkCiBgmJY.KHC36pkun3zW",
   "role": "employee",
-  "team": "Finance",
-  "tasks": []
+  "team": "Finance"
 },
 {
   "_id": {
@@ -50,8 +46,7 @@
   "email": "eve@example.com",
   "password": "$2b$10$IXPio/P2uWwSzxm0ABaQZ.icoDbRxO4EkCiBgmJY.KHC36pkun3zW",
   "role": "admin",
-  "team": "Operations",
-  "tasks": []
+  "team": "Operations"
 },
 {
   "_id": {
@@ -61,8 +56,7 @@
   "email": "frank@example.com",
   "password": "$2b$10$IXPio/P2uWwSzxm0ABaQZ.icoDbRxO4EkCiBgmJY.KHC36pkun3zW",
   "role": "employee",
-  "team": "HR",
-  "tasks": []
+  "team": "HR"
 },
 {
   "_id": {
@@ -72,8 +66,7 @@
   "email": "grace@example.com",
   "password": "$2b$10$IXPio/P2uWwSzxm0ABaQZ.icoDbRxO4EkCiBgmJY.KHC36pkun3zW",
   "role": "employee",
-  "team": "Tech",
-  "tasks": []
+  "team": "Tech"
 },
 {
   "_id": {
@@ -83,8 +76,7 @@
   "email": "hank@example.com",
   "password": "$2b$10$IXPio/P2uWwSzxm0ABaQZ.icoDbRxO4EkCiBgmJY.KHC36pkun3zW",
   "role": "employee",
-  "team": "Marketing",
-  "tasks": []
+  "team": "Marketing"
 },
 {
   "_id": {
@@ -94,8 +86,7 @@
   "email": "ivy@example.com",
   "password": "$2b$10$IXPio/P2uWwSzxm0ABaQZ.icoDbRxO4EkCiBgmJY.KHC36pkun3zW",
   "role": "employee",
-  "team": "Finance",
-  "tasks": []
+  "team": "Finance"
 },
 {
   "_id": {
@@ -105,8 +96,7 @@
   "email": "jack@example.com",
   "password": "$2b$10$IXPio/P2uWwSzxm0ABaQZ.icoDbRxO4EkCiBgmJY.KHC36pkun3zW",
   "role": "employee",
-  "team": "Operations",
-  "tasks": []
+  "team": "Operations"
 },
 {
   "_id": {
@@ -116,32 +106,7 @@
   "email": "anushka.sarkar@desisascendeducare.in",
   "password": "$2b$10$IXPio/P2uWwSzxm0ABaQZ.icoDbRxO4EkCiBgmJY.KHC36pkun3zW",
   "role": "employee",
-  "team": "Tech",
-  "tasks": [
-    {
-      "taskName": "Book Auditorium",
-      "description": "Book first floor auditorium",
-      "budget": null,
-      "eventName": "Guest Lecture",
-      "status": "Pending",
-      "_id": {
-        "$oid": "67d96b36f28338d69de149f9"
-      }
-    },
-    {
-      "taskName": "Send Invitations",
-      "description": "Send invitations to team members",
-      "deadline": {
-        "$date": "2025-03-20T00:00:00.000Z"
-      },
-      "budget": 20,
-      "eventName": "Team Dinner",
-      "status": "Pending",
-      "_id": {
-        "$oid": "67d981ea94f5944a70248d36"
-      }
-    }
-  ]
+  "team": "Tech"
 },
 {
   "_id": {
@@ -151,8 +116,7 @@
   "email": "khyathi.gutta@desisascendeducare.in",
   "password": "$2b$10$IXPio/P2uWwSzxm0ABaQZ.icoDbRxO4EkCiBgmJY.KHC36pkun3zW",
   "role": "admin",
-  "team": "HR",
-  "tasks": []
+  "team": "HR"
 },
 {
   "_id": {
@@ -161,7 +125,56 @@
   "name": "Jane Doe",
   "email": "janedoe@example.com",
   "password": "$2b$10$IXPio/P2uWwSzxm0ABaQZ.icoDbRxO4EkCiBgmJY.KHC36pkun3zW",
-  "team": "Marketing",
   "role": "employee",
-  "tasks": []
+  "team": "Marketing"
+},
+{
+  "_id": {
+    "$oid": "67d3f0b5a482b72d786f3123"
+  },
+  "name": "Olivia",
+  "email": "olivia@example.com",
+  "password": "$2b$10$IXPio/P2uWwSzxm0ABaQZ.icoDbRxO4EkCiBgmJY.KHC36pkun3zW",
+  "role": "manager",
+  "team": "HR"
+},
+{
+  "_id": {
+    "$oid": "67d3f0b5a482b72d786f3124"
+  },
+  "name": "Noah",
+  "email": "noah@example.com",
+  "password": "$2b$10$IXPio/P2uWwSzxm0ABaQZ.icoDbRxO4EkCiBgmJY.KHC36pkun3zW",
+  "role": "manager",
+  "team": "Tech"
+},
+{
+  "_id": {
+    "$oid": "67d3f0b5a482b72d786f3125"
+  },
+  "name": "Sophia",
+  "email": "sophia@example.com",
+  "password": "$2b$10$IXPio/P2uWwSzxm0ABaQZ.icoDbRxO4EkCiBgmJY.KHC36pkun3zW",
+  "role": "manager",
+  "team": "Marketing"
+},
+{
+  "_id": {
+    "$oid": "67d3f0b5a482b72d786f3126"
+  },
+  "name": "Liam",
+  "email": "liam@example.com",
+  "password": "$2b$10$IXPio/P2uWwSzxm0ABaQZ.icoDbRxO4EkCiBgmJY.KHC36pkun3zW",
+  "role": "manager",
+  "team": "Finance"
+},
+{
+  "_id": {
+    "$oid": "67d3f0b5a482b72d786f3127"
+  },
+  "name": "Mia",
+  "email": "mia@example.com",
+  "password": "$2b$10$IXPio/P2uWwSzxm0ABaQZ.icoDbRxO4EkCiBgmJY.KHC36pkun3zW",
+  "role": "admin",
+  "team": "Finance"
 }]

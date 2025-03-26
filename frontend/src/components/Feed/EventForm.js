@@ -104,28 +104,23 @@ function EventForm() {
   return (
     <div className="form-container">
       <h2>Create Event</h2>
-      {errors.message && <p className="error-message">Error: {errors.message}</p>}
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Event Name</label>
-          <input type="text" value={eventName} onChange={(e) => setEventName(e.target.value)} required />
+          <input type="text" placeholder="Event Name" value={eventName} onChange={(e) => setEventName(e.target.value)} required />
         </div>
-
         <div className="form-group">
           <label>Description</label>
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} required />
+          <textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} required />
         </div>
-
         <div className="form-group">
           <label>Venue</label>
-          <input type="text" value={venue} onChange={(e) => setVenue(e.target.value)} />
+          <input type="text" placeholder="Venue" value={venue} onChange={(e) => setVenue(e.target.value)} />
         </div>
-
         <div className="form-group">
           <label>Date</label>
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
         </div>
-
         <div className="form-group">
           <label>Event Type</label>
           <select value={eventType} onChange={(e) => setEventType(e.target.value)}>
@@ -135,85 +130,47 @@ function EventForm() {
           </select>
         </div>
 
-        {eventType === "limited-entry" && (
+        {eventType === 'limited-entry' && (
           <>
             <div className="form-group">
               <label>Available Slots</label>
-              <input
-                type="number"
-                value={availableSlots}
-                onChange={(e) => {
-                  if (validateNumber(e.target.value)) {
-                    setAvailableSlots(e.target.value);
-                  } else {
-                    alert("Please enter a valid number for Available Slots.");
-                  }
-                }}
-              />
+              <input type="text" placeholder="Available Slots" value={availableSlots} onChange={(e) => {
+                if (validateNumber(e.target.value, 'availableSlots')) setAvailableSlots(e.target.value);
+              }} required />
+              {errors.availableSlots && <p className="error">{errors.availableSlots}</p>}
             </div>
             <div className="form-group">
-              <label>Ticket Price</label>
-              <input
-                type="number"
-                value={ticketPrice}
-                onChange={(e) => {
-                  if (validateNumber(e.target.value)) {
-                    setTicketPrice(e.target.value);
-                  } else {
-                    alert("Please enter a valid number for Ticket Price.");
-                  }
-                }}
-              />
+              <label>Ticket Price (optional)</label>
+              <input type="text" placeholder="Ticket Price" value={ticketPrice} onChange={(e) => {
+                if (validateNumber(e.target.value, 'ticketPrice')) setTicketPrice(e.target.value);
+              }} />
+              {errors.ticketPrice && <p className="error">{errors.ticketPrice}</p>}
             </div>
           </>
         )}
 
-        {eventType === "team-specific" && (
+        {eventType === 'team-specific' && (
           <div className="form-group">
             <label>Team</label>
-            <input type="text" value={team} onChange={(e) => setTeam(e.target.value)} required />
+            <input type="text" placeholder="Team" value={team} onChange={(e) => setTeam(e.target.value)} required />
           </div>
         )}
 
-        {/* Tasks Section */}
         <h3>Tasks</h3>
         {tasks.map((task, index) => (
           <div key={index} className="task-container">
-            <input
-              type="text"
-              placeholder="Task Name"
-              value={task.taskName}
-              onChange={(e) => handleTaskChange(index, "taskName", e.target.value)}
-              required
-            />
-            <input
-              type="text"
-              placeholder="Description"
-              value={task.description}
-              onChange={(e) => handleTaskChange(index, "description", e.target.value)}
-            />
-            <input
-              type="email"
-              placeholder="Assigned To (Email)"
-              value={task.assignee}
-              onChange={(e) => handleTaskChange(index, "assignee", e.target.value)}
-              required
-            />
-            <input
-              type="date"
-              placeholder="Task Deadline"
-              value={task.deadline}
-              onChange={(e) => handleTaskChange(index, "deadline", e.target.value)}
-            />
-            <input
-              type="number"
-              placeholder="Budget"
-              value={task.budget}
-              onChange={(e) => handleTaskChange(index, "budget", e.target.value)}
-            />
+            <input type="text" placeholder="Task Name" value={task.taskName} onChange={(e) => handleTaskChange(index, 'taskName', e.target.value)} required />
+            <input type="text" placeholder="Description" value={task.description} onChange={(e) => handleTaskChange(index, 'description', e.target.value)} />
+            <input type="email" placeholder="Assigned To (Email)" value={task.assignee} onChange={(e) => handleTaskChange(index, 'assignee', e.target.value)} required />
+            <input type="date" placeholder="Task Deadline" value={task.deadline} onChange={(e) => handleTaskChange(index, 'deadline', e.target.value)} />
+            <input type="text" placeholder="Budget" value={task.budget} onChange={(e) => {
+              if (validateNumber(e.target.value, `budget-${index}`)) handleTaskChange(index, 'budget', e.target.value);
+            }} />
+            {errors[`budget-${index}`] && <p className="error">{errors[`budget-${index}`]}</p>}
             <button type="button" onClick={() => removeTask(index)}>Remove Task</button>
           </div>
         ))}
+
         <button type="button" onClick={addTask}>Add Task</button>
         <button type="submit">Create Event</button>
       </form>
