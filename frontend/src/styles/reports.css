@@ -123,83 +123,199 @@ body {
   width: 100%;
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 20px; /* Adds spacing to prevent overlap */
+}
+
+/* Container */
+.container {
+  background-color: #ffffff;
+  padding: 40px;
+  width: 90%;
+  max-width: 900px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* Headings */
+h1, h2 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: 600;
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: 500;
+}
+
+/* Form Section */
+.form-section {
+  margin-bottom: 30px;
+}
+
+input {
+  width: calc(33.3% - 12px);
+  padding: 12px;
+  margin-right: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
   box-sizing: border-box;
 }
 
-.chart {
-  width: 100% !important;
-  max-width: 500px; /* Prevents charts from being too large */
-  height: auto !important;
+input:last-child {
+  margin-right: 0;
 }
 
-.event-card {
+button {
+  background-color: #007bff;
+  color: #fff;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.error-message {
+  color: #d9534f;
+  margin-top: 10px;
+}
+
+/* Report Section */
+.report-section {
+  margin-top: 20px;
+}
+
+/* Event Container */
+.event-container {
   display: flex;
   flex-direction: column;
   align-items: center; 
-  justify-content: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 1400px;
+}
+
+/* Event Card */
+.event-card {
+  background-color: #ffffff;
+  border-radius: 12px;
   padding: 24px;
-  margin-bottom: 20px; /* Adds spacing between event cards */
   width: 100%;
   max-width: 900px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
   box-sizing: border-box;
 }
 
-.event-details {
-  text-align: left;
+.event-card:hover {
+  transform: translateY(-5px);
+}
+
+.event-details strong {
+  color: #2c3e50;
+}
+
+.chart-container {
+  display: flex;
+  flex-direction: column;  /* Stacks charts vertically */
+  align-items: center; /* Centers charts */
   width: 100%;
-  margin: 8px 0;
-  color: #34495e;
+  margin-top: 20px;
+}
+
+.chart-wrapper {
+width: 100%;
+display: flex;
+justify-content: center;
+align-items: center;
+padding: 20px; /* Adds spacing to prevent overlap */
+box-sizing: border-box;
+}
+
+.chart {
+width: 100% !important;
+max-width: 500px; /* Prevents charts from being too large */
+height: auto !important;
+}
+
+.event-card {
+display: flex;
+flex-direction: column;
+align-items: center; 
+justify-content: center;
+padding: 24px;
+margin-bottom: 20px; /* Adds spacing between event cards */
+width: 100%;
+max-width: 900px;
+box-sizing: border-box;
+}
+
+.event-details {
+text-align: left;
+width: 100%;
+margin: 8px 0;
+color: #34495e;
 }
 
 canvas {
-  object-fit: contain;
+object-fit: contain;
 }
 
-  /* Download Buttons */
-  button.download-btn {
-    margin-top: 20px;
-    color: white;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    display: inline-flex;
-    margin-right: 10px; /* Adjust space between buttons */
+/* Download Buttons */
+button.download-btn {
+  margin-top: 20px;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  display: inline-flex;
+  margin-right: 10px; /* Adjust space between buttons */
+}
+
+/* PDF Button */
+button.pdf-btn {
+  background-color: #17a2b8;
+}
+
+button.pdf-btn:hover {
+  background-color: #17a2b8;
+}
+
+button.excel-btn {
+  background-color: #17a2b8;
+}
+
+button.excel-btn:hover {
+  background-color: #117a8b;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .event-card {
+    width: 100%;
   }
-  
-  /* PDF Button */
-  button.pdf-btn {
-    background-color: #17a2b8;
+
+  input {
+    width: 100%;
   }
-  
-  button.pdf-btn:hover {
-    background-color: #17a2b8;
+
+  .chart {
+    min-width: 100%;
+    height: 250px;
   }
-  
-  button.excel-btn {
-    background-color: #17a2b8;
-  }
-  
-  button.excel-btn:hover {
-    background-color: #117a8b;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .event-card {
-      width: 100%;
-    }
-  
-    input {
-      width: 100%;
-    }
-  
-    .chart {
-      min-width: 100%;
-      height: 250px;
-    }
-  }
-  
+}
