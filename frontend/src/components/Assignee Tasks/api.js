@@ -36,3 +36,23 @@ export const addCommentToTask = async (taskId, message) => {
     return null;
   }
 };
+
+export const updateTaskStatus = async (taskId, status) => {
+  try {
+    if (!taskId) {
+      console.error("Error: Task ID is missing!");
+      return null;
+    }
+
+    const response = await axios.patch( //  Use PATCH instead of PUT
+      `http://localhost:5000/api/tasks/${taskId}/status`, 
+      { status } // Only send status, taskId is already in the URL
+    );
+
+    console.log(`Task status updated to: ${status}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating task status:", error);
+    return null;
+  }
+};

@@ -1,71 +1,93 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { updateTaskStatus } from './api';
+import { TaskContext } from './TaskContext_Assignee';
 import axios from 'axios';
 import '../../styles/TaskDetails_Assignee.css';
 
 const TaskDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { task } = location.state || {};
+  const { fetchTasks } = useContext(TaskContext);
+  const { task } = location.state || {}; // Ensure task exists
+
+  const [status, setStatus] = useState(task?.status || "Pending");
   const [assigneeDetails, setAssigneeDetails] = useState(null);
-  const [comments, setComments] = useState(task.comments || []);
+  const [comments, setComments] = useState(task?.comments || []);
   const [newComment, setNewComment] = useState('');
 
   useEffect(() => {
     if (!task?.assignee) return;
-  
+
     const fetchAssigneeDetails = async () => {
       try {
-        console.log("Fetching assignee details for:", task.assignee);
         const response = await axios.get(`http://localhost:5000/api/employees/${task.assignee}`);
         setAssigneeDetails(response.data);
       } catch (error) {
         console.error("Error fetching assignee details:", error);
       }
     };
-  
+
     fetchAssigneeDetails();
   }, [task?.assignee]);
-  
-  // Handle Add Comment with Improved State Update
+
+  //  Fix: Ensure status updates & UI refresh properly
+  const handleStatusChange = async (newStatus) => {
+    if (!task?._id || newStatus === status) return;
+
+    try {
+      const response = await updateTaskStatus(task._id, newStatus);
+      if (response) {
+        alert("Task status updated successfully!");
+        setStatus(newStatus);
+        await fetchTasks(); //  Ensure the task list updates
+      }
+    } catch (error) {
+      console.error("Error updating task status:", error);
+    }
+  };
+
+  //  Fix: Ensure dashboard reflects updates before navigating
+  const handleBackToDashboard = async () => {
+    await fetchTasks(); // Fetch latest tasks
+    navigate('/pending-tasks'); // Navigate after fetching
+  };
+
+  //  Fix: Handle adding comments properly
   const handleAddComment = async () => {
     if (!newComment.trim()) {
       console.warn('Comment is empty. Please add a message before submitting.');
       return;
     }
-  
+
     try {
       const userEmail = localStorage.getItem('userEmail');
-  
       if (!userEmail) {
         console.error('User email not found in localStorage');
         return;
       }
-  
+
       const response = await axios.post(
-        `http://localhost:5000/api/tasks/assigned/${task?._id}/comments`,
+        `http://localhost:5000/api/tasks/${task?._id}/comments`, // Fix: Ensure correct URL
         { message: newComment },
-        {
-          headers: {
-            "user-email": userEmail,
-          },
-        }
+        { headers: { "user-email": userEmail } }
       );
-  
-      console.log('Comment added successfully:', response.data);
-  
+
       if (response.data.task?.comments?.length) {
-        const latestComment = response.data.task.comments.slice(-1)[0];
-        setComments((prevComments) => [...prevComments, latestComment]);
+        setComments(response.data.task.comments); //  Set all comments instead of appending manually
         setNewComment('');
       } else {
         console.warn('No comments found in response.');
       }
     } catch (error) {
-      console.error('Error adding comment:', error?.response?.data?.message || error.message);
+      console.error('Error adding comment:', error);
     }
   };
-    
+
+  //  Fix: Ensure task is always defined before rendering
+  if (!task?._id) {
+    return <div className="task-details"><h2>Task not found.</h2></div>;
+  }
 
   return (
     <div className="task-details">
@@ -76,16 +98,32 @@ const TaskDetails = () => {
         <strong>Assigned To:</strong> {assigneeDetails ? `${assigneeDetails.name} (${assigneeDetails.email})` : task.assignee}
       </p>
       <p><strong>Assigned By:</strong> {task.creator}</p>
-      <p><strong>Status:</strong> {task.status}</p>
 
+      {/*  Fixed Status Update Dropdown */}
+      <div className="status-update">
+        <label><strong>Status:</strong></label>
+        <select value={status} onChange={(e) => handleStatusChange(e.target.value)}>
+          <option value="Pending">Pending</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
+
+      {/*  Fix: Handle undefined comment timestamps */}
       <div className="comments-section">
         <h3>Comments</h3>
-        {comments.map((comment, index) => (
-          <div key={index} className="comment">
-            <p>{comment.message}</p>
-            <small>By {comment.author} at {new Date(comment.timestamp).toLocaleString()}</small>
-          </div>
-        ))}
+        {comments.length > 0 ? (
+          comments.map((comment, index) => (
+            <div key={index} className="comment">
+              <p>{comment.message}</p>
+              <small>
+                By {comment.author} at {comment.timestamp ? new Date(comment.timestamp).toLocaleString() : "Unknown Time"}
+              </small>
+            </div>
+          ))
+        ) : (
+          <p>No comments yet.</p>
+        )}
 
         <textarea
           value={newComment}
@@ -95,7 +133,8 @@ const TaskDetails = () => {
         <button onClick={handleAddComment}>Add Comment</button>
       </div>
 
-      <button onClick={() => navigate('/pending-tasks')}>Back to Dashboard</button>
+      {/*  Fix: Ensure dashboard updates before navigating */}
+      <button onClick={handleBackToDashboard}>Refresh & Back to Dashboard</button>
     </div>
   );
 };

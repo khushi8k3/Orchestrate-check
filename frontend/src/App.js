@@ -46,7 +46,6 @@ function App() {
                             element={loggedInUser ? (
                                 <div>
                                     <EventFeed loggedInUser={loggedInUser} />
-                                    <h2>Pay to RSVP for the event</h2>
                                     <RazorpayButton amount={100} />
                                 </div>
                             ) : <Navigate to="/" replace />}

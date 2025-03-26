@@ -1,5 +1,4 @@
 const Task = require("../models/Task");
-const Employee = require("../models/Employee");
 const mongoose = require("mongoose");
 
 // Get tasks assigned to the logged-in user
@@ -15,10 +14,7 @@ exports.getTasksByAssignee = async (req, res) => {
     console.log("User Email Received:", userEmail);
 
     // Fetch tasks where the assignee matches the logged-in user
-    const tasks = await Task.find({ assignee: userEmail }).sort({
-      deadline: 1,
-      createdAt: 1,
-    });
+    const tasks = await Task.find({ assignee: userEmail }).sort({ deadline: 1, createdAt: 1 });
 
     if (tasks.length === 0) {
       console.warn("No tasks found for:", userEmail);
@@ -33,24 +29,24 @@ exports.getTasksByAssignee = async (req, res) => {
   }
 };
 
-// Update task status
+// Update task status (using taskId from URL)
 exports.updateTaskStatus = async (req, res) => {
   try {
-    const { taskId, status } = req.body;
+    const { status } = req.body;
+    const { taskId } = req.params; // ✅ Use taskId instead of id
+
+    console.log(`Received request to update task: ${taskId} to status: ${status}`);
 
     if (!taskId || !status) {
-      console.warn("Task ID or status missing in request body");
+      console.warn("Task ID or status missing in request");
       return res.status(400).json({ message: "Task ID and status are required" });
     }
 
-    // Validate status values
-    const validStatuses = ["Pending", "In Progress", "Completed"];
-    if (!validStatuses.includes(status)) {
-      console.warn("Invalid status value received:", status);
-      return res.status(400).json({ message: "Invalid status value" });
+    if (!mongoose.Types.ObjectId.isValid(taskId)) {
+      console.warn("Invalid Task ID:", taskId);
+      return res.status(400).json({ message: "Invalid Task ID format" });
     }
 
-    // Update the task status by ID
     const updatedTask = await Task.findByIdAndUpdate(
       taskId,
       { $set: { status } },
@@ -58,11 +54,11 @@ exports.updateTaskStatus = async (req, res) => {
     );
 
     if (!updatedTask) {
-      console.warn("Task not found for ID:", taskId);
+      console.warn(`Task not found for ID: ${taskId}`);
       return res.status(404).json({ message: "Task not found" });
     }
 
-    console.log(`Task status updated to '${status}' for Task ID: ${taskId}`);
+    console.log(`Task ${taskId} successfully updated to '${status}'`);
     res.status(200).json({ message: "Task status updated", task: updatedTask });
   } catch (error) {
     console.error("Error updating task status:", error.message);
@@ -70,24 +66,24 @@ exports.updateTaskStatus = async (req, res) => {
   }
 };
 
-// Get task details by ID
+// Get task details by taskId
 exports.getTaskById = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { taskId } = req.params; // ✅ Use taskId instead of id
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      console.warn("Invalid Task ID:", id);
+    if (!mongoose.Types.ObjectId.isValid(taskId)) {
+      console.warn("Invalid Task ID:", taskId);
       return res.status(400).json({ message: "Invalid Task ID format" });
     }
 
-    const task = await Task.findById(id);
+    const task = await Task.findById(taskId);
 
     if (!task) {
-      console.warn("Task not found for ID:", id);
+      console.warn("Task not found for ID:", taskId);
       return res.status(404).json({ message: "Task not found" });
     }
 
-    console.log(`Task details fetched for Task ID: ${id}`);
+    console.log(`Task details fetched for Task ID: ${taskId}`);
     res.status(200).json(task);
   } catch (error) {
     console.error("Error fetching task details:", error.message);
@@ -100,10 +96,10 @@ exports.addCommentToTask_Assignee = async (req, res) => {
   try {
     const userEmail = req.headers["user-email"]; // Logged-in user
     const { message } = req.body;
-    const { id } = req.params;
+    const { taskId } = req.params; // ✅ Use taskId instead of id
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      console.warn("Invalid Task ID:", id);
+    if (!mongoose.Types.ObjectId.isValid(taskId)) {
+      console.warn("Invalid Task ID:", taskId);
       return res.status(400).json({ message: "Invalid Task ID format" });
     }
 
@@ -112,10 +108,10 @@ exports.addCommentToTask_Assignee = async (req, res) => {
       return res.status(400).json({ message: "User email and message are required" });
     }
 
-    const task = await Task.findById(id);
+    const task = await Task.findById(taskId);
 
     if (!task) {
-      console.warn("Task not found for ID:", id);
+      console.warn("Task not found for ID:", taskId);
       return res.status(404).json({ message: "Task not found" });
     }
 
@@ -129,7 +125,7 @@ exports.addCommentToTask_Assignee = async (req, res) => {
     task.comments.push(newComment);
     await task.save();
 
-    console.log(`Comment added by ${userEmail} on Task ID: ${id}`);
+    console.log(`Comment added by ${userEmail} on Task ID: ${taskId}`);
     res.status(201).json({ message: "Comment added successfully", task });
   } catch (error) {
     console.error("Error adding comment:", error.message);

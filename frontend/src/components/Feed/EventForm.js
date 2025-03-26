@@ -3,12 +3,12 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../../styles/EventForm.css";
 
-function EventForm() {
+function EventForm(userRole ) {
   const [eventName, setEventName] = useState("");
   const [description, setDescription] = useState("");
   const [venue, setVenue] = useState("");
   const [date, setDate] = useState("");
-  const [eventType, setEventType] = useState("firm-wide");
+  const [eventType, setEventType] = useState(userRole === "manager" ? "limited-entry" : "firm-wide"); 
   const [availableSlots, setAvailableSlots] = useState("");
   const [ticketPrice, setTicketPrice] = useState("");
   const [team, setTeam] = useState("");
@@ -124,7 +124,8 @@ function EventForm() {
         <div className="form-group">
           <label>Event Type</label>
           <select value={eventType} onChange={(e) => setEventType(e.target.value)}>
-            <option value="firm-wide">Firm-Wide</option>
+            {/* Show "Firm-Wide" ONLY for admins */}
+            {userRole !== "manager" && <option value="firm-wide">Firm-Wide</option>}
             <option value="limited-entry">Limited Entry</option>
             <option value="team-specific">Team-Specific</option>
           </select>

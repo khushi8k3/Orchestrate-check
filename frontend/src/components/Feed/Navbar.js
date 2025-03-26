@@ -20,7 +20,6 @@ function Navbar({ handleLogout, userRole }) {
         setMenuOpen(false); 
     };
     
-
     return (
         <div className="navbar">
             <h2 className="logo">Orchestrate</h2>
@@ -34,12 +33,20 @@ function Navbar({ handleLogout, userRole }) {
             {menuOpen && (
                 <div className="nav-dropdown">
                     <button onClick={() => handleNavigation("/feed")}>Home</button>
-                    {userRole === "admin" && (
+                    
+                    {/* Allow "Create Event" only for Admins & Managers */}
+                    {(userRole === "admin" || userRole === "manager") && (
                         <button onClick={() => handleNavigation("/create-event")}>Create Event</button>
                     )}
+
                     <button onClick={() => handleNavigation("/reports")}>See Reports</button>
                     <button onClick={() => handleNavigation("/pending-tasks")}>See Your Tasks</button>
-                    <button onClick={() => handleNavigation("/manage-events")}>Manage Your Events</button>
+                    
+                    {/* Allow "Manage Events" only for Admins & Managers */}
+                    {(userRole === "admin" || userRole === "manager") && (
+                        <button onClick={() => handleNavigation("/manage-events")}>Manage Your Events</button>
+                    )}
+
                     <button onClick={handleLogout}>Logout</button>
                 </div>
             )}
