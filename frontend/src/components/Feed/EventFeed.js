@@ -63,6 +63,52 @@ function EventFeed({ loggedInUser }) {
     setStarredEvents(newStars);
   };
 
+  const handleRSVP = async (event) => {
+    const token = localStorage.getItem("token");
+  
+    if (!loggedInUser?.name) {
+      alert("Please log in to RSVP.");
+      return;
+    }
+  
+    try {
+      const isRSVPd = event.attendees.includes(loggedInUser.name);
+      const endpoint = isRSVPd 
+        ? `http://localhost:5000/api/events/${event._id}/unrsvp`
+        : `http://localhost:5000/api/events/${event._id}/rsvp`;
+  
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ employeeName: loggedInUser.name }),
+      });
+  
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Failed to update RSVP status");
+  
+      // Update local state to reflect changes
+      setEvents((prevEvents) =>
+        prevEvents.map((e) =>
+          e._id === event._id
+            ? {
+                ...e,
+                attendees: isRSVPd
+                  ? e.attendees.filter((name) => name !== loggedInUser.name) // Remove from attendees
+                  : [...e.attendees, loggedInUser.name], // Add to attendees
+                availableSlots: isRSVPd ? e.availableSlots + 1 : e.availableSlots - 1, // Adjust slots
+              }
+            : e
+        )
+      );
+    } catch (error) {
+      console.error("RSVP Error:", error.message);
+      alert(error.message);
+    }
+  };
+  
 
   // Ensure event ID matches task eventID (convert both to strings)
   const isEventCompleted = (eventId) => {
@@ -71,28 +117,35 @@ function EventFeed({ loggedInUser }) {
   };
 
   const filteredEvents = events
-    .filter((event) => isEventCompleted(event._id)) // Only show completed events
-    .filter((event) => {
-      const isStarred = starredEvents.has(event._id);
+  .filter((event) => isEventCompleted(event._id)) // Only show completed events
+  .filter((event) => {
+    const isStarred = starredEvents.has(event._id);
+    const isUserAttendee = event.attendees.some(
+      (attendee) => attendee.toLowerCase() === loggedInUser?.name.toLowerCase()
+    );
 
-      if (selectedFilter === "RSVP'd") {
-        return event.attendees.includes(loggedInUser?.name);
-      }
+    if (selectedFilter === "RSVP'd") {
+      return isUserAttendee;
+    }
 
-      if (selectedFilter === "Starred") {
-        return isStarred;
-      }
+    if (selectedFilter === "Starred") {
+      return isStarred;
+    }
 
-      return true; // For "All Events"
-    })
-    .filter((event) => event.eventName.toLowerCase().includes(searchTerm.toLowerCase()))
-    .filter((event) => 
-      selectedYear === "All Years" || new Date(event.date).getFullYear().toString() === selectedYear
-    )
-    .filter((event) => 
-      selectedEventType === "All Types" || event.eventType === selectedEventType
-    )
-    .sort((a, b) => new Date(b.date) - new Date(a.date)); // Sorting latest events first
+    return true; // Show all events by default
+  })
+  .filter((event) =>
+    event.eventName.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+  .filter(
+    (event) =>
+      selectedYear === "All Years" ||
+      new Date(event.date).getFullYear().toString() === selectedYear
+  )
+  .filter(
+    (event) => selectedEventType === "All Types" || event.eventType === selectedEventType
+  )
+  .sort((a, b) => new Date(b.date) - new Date(a.date)); // Sorting latest events first
 
   return (
     <div className="event-feed-container">
@@ -143,13 +196,13 @@ function EventFeed({ loggedInUser }) {
         </select>
       </div>
 
-      {/* ✅ Upcoming Events Title Above the Events */}
+      {/* Upcoming Events Title Above the Events */}
       <h2 className="section-title">Upcoming Events</h2>
 
-      {/* 🔥 Layout Wrapper */}
+      {/* Layout Wrapper */}
       <div className="content-wrapper">
 
-        {/* 📅 Event Feed */}
+        {/* Event Feed */}
         <div className="event-feed">
           <div className="event-list">
             {filteredEvents.length === 0 ? (
@@ -183,13 +236,20 @@ function EventFeed({ loggedInUser }) {
                     </>
                   )}
 
-                  {event.eventType === "limited-entry" && (
-                    event.attendees.includes(loggedInUser?.name) ? (
-                      <button disabled className="rsvp-button">RSVP’d</button>
+                    {event.eventType === "limited-entry" ? (
+                    event.ticketPrice > 0 ? (
+                        // If the event requires payment, show the RazorpayButton
+                        <RazorpayButton event={event} loggedInUser={loggedInUser} />
                     ) : (
-                      <RazorpayButton event={event} loggedInUser={loggedInUser} />
+                        // If the event is free, show the RSVP button
+                        <button
+                        className={`rsvp-button ${event.attendees.includes(loggedInUser?.name) ? "rsvped" : ""}`}
+                        onClick={() => handleRSVP(event)}
+                        >
+                        {event.attendees.includes(loggedInUser?.name) ? "RSVP’d" : "RSVP"}
+                        </button>
                     )
-                  )}
+                    ) : null}
                 </div>
               ))
             )}

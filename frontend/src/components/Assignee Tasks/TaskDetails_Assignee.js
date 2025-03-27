@@ -94,6 +94,7 @@ const TaskDetails = () => {
       <h1>{task.taskName}</h1>
       <p><strong>Event:</strong> {task.eventName}</p>
       <p><strong>Description:</strong> {task.description}</p>
+      <p><strong>Budget:</strong> {task.budget !== null ? `₹${task.budget}` : 'N/A'}</p>
       <p>
         <strong>Assigned To:</strong> {assigneeDetails ? `${assigneeDetails.name} (${assigneeDetails.email})` : task.assignee}
       </p>

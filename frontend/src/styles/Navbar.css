@@ -1,57 +1,73 @@
 /* Navbar Container */
 .navbar {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* Logo left, menu right */
     align-items: center;
     background-color: #333;
     padding: 15px 20px;
     color: white;
-    position: relative;
+    height: 100px; /* Fixed height */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Logo */
+/* Logo stays on the left */
 .logo {
     font-size: 1.8rem;
     font-weight: bold;
     color: white;
-}
-
-/* Hamburger Menu Icon */
-.menu-icon {
-    cursor: pointer;
+    line-height: 100px; /* Matches navbar height */
     display: flex;
     align-items: center;
 }
 
+/* Hamburger Menu Icon */
+.hamburger-menu {
+    cursor: pointer;
+    font-size: 24px;
+    color: white;
+    margin-right: 20px;
+}
+
 /* Dropdown Menu */
-.dropdown-menu {
+.nav-dropdown {
     position: absolute;
-    top: 60px; /* Position it below the icon */
-    right: 20px;
+    top: 60px; /* Below navbar */
+    right: 20px; /* Aligns to right */
     background: white;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
-    overflow: hidden;
-    display: flex;
+    border-radius: 0 0 8px 8px;
+    display: none;
     flex-direction: column;
-    width: 180px;
-    z-index: 1000; /* Ensure it appears above everything */
-    padding: 10px 0;
+    align-items: flex-end;
+    padding: 10px 20px;
+    width: auto;
 }
 
-/* Style the buttons inside dropdown */
-.dropdown-menu button {
+/* Show menu when expanded */
+.navbar.expanded .nav-dropdown {
+    display: flex;
+}
+
+/* Style dropdown links */
+.nav-dropdown button {
     background: none;
     border: none;
-    padding: 12px;
-    text-align: left;
-    width: 100%;
+    padding: 12px 15px;
     font-size: 1rem;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: color 0.3s ease;
     color: #333;
+    text-decoration: none;
+    display: block;
 }
 
-.dropdown-menu button:hover {
-    background: #f1f1f1;
+/* Make buttons look like links */
+.nav-dropdown button:hover {
+    color: #007bff;
+    text-decoration: underline;
 }

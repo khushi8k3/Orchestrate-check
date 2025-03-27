@@ -12,19 +12,23 @@ function Navbar({ handleLogout, userRole }) {
     };
 
     const handleNavigation = (path) => {
+        navigate(path);
+        
+        // Close the menu immediately after selection
+        setMenuOpen(false);
+    
+        // If navigating to "/feed", clear history
         if (path === "/feed") {
-            navigate(path, { replace: true }); // Clears history when going to Home
+            navigate(path, { replace: true });
         } else {
-            navigate(path);
             setTimeout(() => {
-                window.history.replaceState(null, "", "/feed"); // Replace current history with feed
+                window.history.replaceState(null, "", "/feed"); // Ensure history resets to feed
             }, 50);
         }
-        setMenuOpen(false);
     };
-    
+
     return (
-        <div className="navbar">
+        <div className={`navbar ${menuOpen ? "expanded" : ""}`}>
             <h2 className="logo">Orchestrate</h2>
 
             {/* Hamburger Icon */}
@@ -33,26 +37,24 @@ function Navbar({ handleLogout, userRole }) {
             </div>
 
             {/* Dropdown Menu */}
-            {menuOpen && (
-                <div className="nav-dropdown">
-                    <button onClick={() => handleNavigation("/feed")}>Home</button>
-                    
-                    {/* Allow "Create Event" only for Admins & Managers */}
-                    {(userRole === "admin" || userRole === "manager") && (
-                        <button onClick={() => handleNavigation("/create-event")}>Create Event</button>
-                    )}
+            <div className={`nav-dropdown ${menuOpen ? "show" : ""}`}>
+                <button onClick={() => handleNavigation("/feed")}>Home</button>
+                
+                {/* Allow "Create Event" only for Admins & Managers */}
+                {(userRole === "admin" || userRole === "manager") && (
+                    <button onClick={() => handleNavigation("/create-event")}>Create Event</button>
+                )}
 
-                    <button onClick={() => handleNavigation("/reports")}>See Reports</button>
-                    <button onClick={() => handleNavigation("/pending-tasks")}>See Your Tasks</button>
-                    
-                    {/* Allow "Manage Events" only for Admins & Managers */}
-                    {(userRole === "admin" || userRole === "manager") && (
-                        <button onClick={() => handleNavigation("/manage-events")}>Manage Your Events</button>
-                    )}
+                <button onClick={() => handleNavigation("/reports")}>See Reports</button>
+                <button onClick={() => handleNavigation("/pending-tasks")}>See Your Tasks</button>
+                
+                {/* Allow "Manage Events" only for Admins & Managers */}
+                {(userRole === "admin" || userRole === "manager") && (
+                    <button onClick={() => handleNavigation("/manage-events")}>Manage Your Events</button>
+                )}
 
-                    <button onClick={handleLogout}>Logout</button>
-                </div>
-            )}
+                <button onClick={handleLogout}>Logout</button>
+            </div>
         </div>
     );
 }

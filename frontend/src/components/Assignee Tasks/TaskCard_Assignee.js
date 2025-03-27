@@ -14,7 +14,7 @@ const TaskCard_Assignee = ({ task }) => {
       <h3>{task.taskName}</h3>
       <p><strong>Event:</strong> {task.eventName}</p>
       <p><strong>Status:</strong> {task.status}</p>
-      <p><strong>Budget:</strong> {task.budget !== null ? `$${task.budget}` : 'N/A'}</p>
+      <p><strong>Budget:</strong> {task.budget !== null ? `₹${task.budget}` : 'N/A'}</p>
       <button onClick={handleViewDetails}>View Details</button>
     </div>
   );

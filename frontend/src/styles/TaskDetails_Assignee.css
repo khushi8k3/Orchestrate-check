@@ -1,9 +1,12 @@
 /* TaskDetails.css */
 
 .task-details {
-    padding: 40px;
-    font-family: Arial, sans-serif;
-  }
+  padding: 10px;
+  font-family: Arial, sans-serif;
+  height: 100px; /* Fixed height */
+  overflow: hidden; /* Prevents content from overflowing */
+}
+
   
   .task-details h1 {
     font-size: 30px;
@@ -46,4 +49,5 @@
   .back-btn:hover {
     background: #218838;
   }
+  
   

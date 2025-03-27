@@ -4,6 +4,7 @@ import { Bar, Pie } from 'react-chartjs-2';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import ExcelJS from 'exceljs';
+import '../../styles/ComprehensiveReport.css';
 import { saveAs } from 'file-saver';
 import {
   Chart as ChartJS,
@@ -243,17 +244,15 @@ const eventTypeCounts = Object.values(eventTypeDistribution);
               ))}
             </tbody>
           </table>
-          <div style={{ marginTop: '20px' }}>
+          <div className="download-buttons">
             <button onClick={downloadPDF}>Download PDF</button>
-            <button onClick={downloadExcel} style={{ marginLeft: '10px' }}>
-              Download Excel
-            </button>
+            <button onClick={downloadExcel}>Download Excel</button>
           </div>
 
           {/* Aggregated Charts */}
           <div className="charts">
           <h3>Events Count per Year</h3>
-            <div className="chart-container" style={{ height: '300px' }}>
+            <div className="chart-container">
               <Bar
                 className="chart"
                 data={{
@@ -271,7 +270,7 @@ const eventTypeCounts = Object.values(eventTypeDistribution);
             </div>
 
             <h3>Total Budget per Year (₹)</h3>
-            <div className="chart-container" style={{ height: '300px', marginTop: '20px' }}>
+            <div className="chart-container">
               <Bar
                 className="chart"
                 data={{
@@ -292,7 +291,7 @@ const eventTypeCounts = Object.values(eventTypeDistribution);
             {!eventType && (
               <>
                 <h3>Event Type Distribution</h3>
-                <div className="chart-container" style={{ height: '300px', marginTop: '20px' }}>
+                <div className="chart-container">
                   <Pie
                     className="chart"
                     data={{
@@ -328,7 +327,7 @@ const eventTypeCounts = Object.values(eventTypeDistribution);
               return (
                 <div className="chart-group">
                   <h3>Budget Spent by Event Type</h3>
-                  <div className="chart-container" style={{ height: '300px', marginTop: '20px' }}>
+                  <div className="chart-container">
                     <Bar
                       className="chart"
                       data={{
@@ -362,7 +361,7 @@ const eventTypeCounts = Object.values(eventTypeDistribution);
                   Finance: '#28a745',
                   HR: '#dc3545',
                   Sales: '#17a2b8',
-                  Engineering: '#6f42c1'
+                  Tech: '#6f42c1'
                 };
 
                 const defaultColor = '#343a40';
@@ -374,7 +373,7 @@ const eventTypeCounts = Object.values(eventTypeDistribution);
                 return (
                   <div key={index} className="chart-group">
                     <h3>{event.team || 'Unknown Team'} - {event.year || 'Unknown Year'}</h3>
-                    <div className="chart-container" style={{ height: '300px', marginTop: '20px' }}>
+                    <div className="chart-container">
                       <Bar
                         className="chart"
                         data={{

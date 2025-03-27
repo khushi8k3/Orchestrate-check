@@ -8,7 +8,7 @@ const router = express.Router();
 // Ensure JWT secret exists
 const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret";
 if (!process.env.JWT_SECRET) {
-  console.error("⚠️ Warning: JWT_SECRET is missing in environment variables!");
+  console.error("Warning: JWT_SECRET is missing in environment variables!");
 }
 
 // User Login

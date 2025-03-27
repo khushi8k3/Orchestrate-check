@@ -1,38 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { Bar, Pie } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  ArcElement,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Title,
-  Tooltip,
-  Legend
-} from 'chart.js';
-
-ChartJS.register(
-  ArcElement,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Title,
-  Tooltip,
-  Legend
-);
+import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 const ReportsHome = () => {
   const [reportData, setReportData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError]=useState('');
 
   const [years, setYears] = useState([]);
   const [eventCounts, setEventCounts] = useState([]);
   const [budgets, setBudgets] = useState([]);
-  const [eventTypeDistribution, setEventTypeDistribution] = useState({});
-  const [budgetByType, setBudgetByType] = useState({});
-  const [budgetByTeam, setBudgetByTeam] = useState({});
+  const [eventTypeDistribution, setEventTypeDistribution] = useState([]);
+  const [budgetByType, setBudgetByType] = useState([]);
+  const [budgetByTeam, setBudgetByTeam] = useState([]);
 
   const fetchReport = useCallback(async () => {
     setLoading(true);
@@ -83,7 +63,6 @@ const ReportsHome = () => {
     fetchReport();
   }, [fetchReport]);
 
-  // Update state variables when reportData changes
   useEffect(() => {
     if (reportData.length === 0) return;
 
@@ -98,34 +77,59 @@ const ReportsHome = () => {
       budgetPerYear[cur.year] = (budgetPerYear[cur.year] || 0) + cur.totalBudget;
       eventTypeDist[cur.eventType] = (eventTypeDist[cur.eventType] || 0) + cur.eventCount;
       budgetByEventType[cur.eventType] = (budgetByEventType[cur.eventType] || 0) + cur.totalBudget;
-      budgetByTeams[cur.team] = (budgetByTeams[cur.team] || 0) + cur.totalBudget;
+      if (cur.team && cur.team !== "N/A") {
+        budgetByTeams[cur.team] = (budgetByTeams[cur.team] || 0) + cur.totalBudget;
+      }
     });
-
-    console.log("Updated Data for Charts:", { eventsPerYear, budgetPerYear, eventTypeDist, budgetByEventType, budgetByTeams });
 
     setYears(Object.keys(eventsPerYear));
     setEventCounts(Object.values(eventsPerYear));
     setBudgets(Object.values(budgetPerYear));
-    setEventTypeDistribution(eventTypeDist);
-    setBudgetByType(budgetByEventType);
-    setBudgetByTeam(budgetByTeams);
+    setEventTypeDistribution(Object.entries(eventTypeDist).map(([type, count]) => ({ type, count })));
+    setBudgetByType(Object.entries(budgetByEventType).map(([type, budget]) => ({ type, budget })));
+    setBudgetByTeam(Object.entries(budgetByTeams).map(([team, budget]) => ({ team, budget })));
   }, [reportData]);
-
-  const barOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: { y: { beginAtZero: true } }
-  };
 
   const pieOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: { legend: { position: 'bottom' } }
+    plugins: {
+      legend: {
+        position: 'right',
+      },
+      tooltip: {
+        callbacks: {
+          label: function (tooltipItem) {
+            let dataset = tooltipItem.dataset;
+            let dataIndex = tooltipItem.dataIndex;
+            let value = dataset.data[dataIndex];
+            return `${dataset.label}: ${value}`;
+          },
+        },
+      },
+    },
+    pieChart: {
+      cx: "50%",
+      cy: "50%",
+      outerRadius: 100,
+      fill: "#8884d8",
+      label: true,
+      legendType: "circle",
+      isAnimationActive: true,
+      animationDuration: 800,
+      animationEasing: "ease-out",
+      stroke: "#fff",
+      strokeWidth: 1,
+      paddingAngle: 5,
+    },
+    colors: {
+      "firm-wide": "#0088FE",
+      "team-specific": "#00C49F",
+      "limited-entry": "#FFBB28",
+      "Other": "#FF8042",
+    },
   };
-  console.log("Years State:", years);
-console.log("Event Counts State:", eventCounts);
-console.log("Budgets State:", budgets);
+  
   return (
     <div>
       <h2>Reports Dashboard</h2>
@@ -134,65 +138,128 @@ console.log("Budgets State:", budgets);
 
       {!loading && reportData.length > 0 ? (
         <div>
+          <h3>Event Data Overview</h3>
+          <div className="report-table-container">
+          <table className="report-table">
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>Team</th>
+                <th>Event Type</th>
+                <th>Event Count</th>
+                <th>Event Names</th>
+                <th>Total Budget (₹)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reportData.map((row, index) => (
+                <tr key={index}>
+                  <td>{row.year}</td>
+                  <td>{row.team}</td>
+                  <td>{row.eventType}</td>
+                  <td>{row.eventCount}</td>
+                  <td>{row.eventNames.join(', ')}</td>
+                  <td>₹{row.totalBudget}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          </div>
+          
+          {/* Events by Year Graph */}
           <h3>Event Count per Year</h3>
-          {years.length > 0 ? (
-            <Bar style={{ height: '400px', width: '600px', border: '1px solid red' }}
-              data={{
-                labels: years,
-                datasets: [{ label: 'Event Count', data: eventCounts, backgroundColor: '#007bff' }]
-              }}
-              options={barOptions}
-            />
-          ) : <p>No event data available.</p>}
+          <ResponsiveContainer>
+            <BarChart data={years.map((year, i) => ({ year, events: eventCounts[i] }))}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="year" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="events" fill="#82ca9d" />
+            </BarChart>
+          </ResponsiveContainer>
 
+          {/* Budget per Year Graph */}
           <h3>Total Budget per Year (₹)</h3>
-          {years.length > 0 ? (
-            <Bar
-              data={{
-                labels: years,
-                datasets: [{ label: 'Total Budget', data: budgets, backgroundColor: '#28a745' }]
-              }}
-              options={barOptions}
-            />
-          ) : <p>No budget data available.</p>}
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={years.map((year, i) => ({ year, budget: budgets[i] }))}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="year" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="budget" fill="#8884d8" />
+            </BarChart>
+          </ResponsiveContainer>
+          {/* Budget Allocation by Event Type Graph */}
+          <h3>Budget Allocation by Event Type</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={budgetByType}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="type" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="budget" fill="#FFBB28" />
+            </BarChart>
+          </ResponsiveContainer>
 
           <h3>Event Type Distribution</h3>
-          {Object.keys(eventTypeDistribution).length > 0 ? (
-            <Pie
-              data={{
-                labels: Object.keys(eventTypeDistribution),
-                datasets: [{ data: Object.values(eventTypeDistribution), backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545'] }]
-              }}
-              options={pieOptions}
-            />
-          ) : <p>No event type data available.</p>}
-
-          <h3>Budget Spent by Event Type</h3>
-          {Object.keys(budgetByType).length > 0 ? (
-            <Bar
-              data={{
-                labels: Object.keys(budgetByType),
-                datasets: [{ data: Object.values(budgetByType), backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545'] }]
-              }}
-              options={barOptions}
-            />
-          ) : <p>No budget type data available.</p>}
-
-          <h3>Budget Allocation by Team</h3>
-          {Object.keys(budgetByTeam).length > 0 ? (
-            Object.entries(budgetByTeam).map(([team, budget], index) => (
-              <div key={index}>
-                <h4>{team}</h4>
-                <Bar
-                  data={{
-                    labels: [team],
-                    datasets: [{ label: 'Total Budget', data: [budget], backgroundColor: '#17a2b8' }]
-                  }}
-                  options={barOptions}
+          <div className="chart-container">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={eventTypeDistribution.map(item => ({
+                    ...item,
+                    fill: pieOptions.colors[item.type] || pieOptions.colors["Other"]
+                  }))}
+                  dataKey="count"
+                  nameKey="type"
+                  cx={pieOptions.pieChart.cx}
+                  cy={pieOptions.pieChart.cy}
+                  outerRadius={pieOptions.pieChart.outerRadius}
+                  label={pieOptions.pieChart.label}
+                  legendType={pieOptions.pieChart.legendType}
+                  isAnimationActive={pieOptions.pieChart.isAnimationActive}
+                  animationDuration={pieOptions.pieChart.animationDuration}
+                  animationEasing={pieOptions.pieChart.animationEasing}
+                  stroke={pieOptions.pieChart.stroke}
+                  strokeWidth={pieOptions.pieChart.strokeWidth}
+                  paddingAngle={pieOptions.pieChart.paddingAngle}
                 />
-              </div>
-            ))
-          ) : <p>No team budget data available.</p>}
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Budget Allocation by Team Graph */}
+          <h3>Budget Allocation by Team</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={budgetByTeam}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="team" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="budget">
+                {budgetByTeam.map(({ team }, index) => {
+                  const teamColors = {
+                    Operations: '#ffc107',   // Yellow
+                    Marketing: '#007bff',    // Blue
+                    Finance: '#28a745',      // Green
+                    HR: '#dc3545',           // Red
+                    Sales: '#17a2b8',        // Cyan
+                    Tech: '#6f42c1',         // Purple
+                  };
+                  return (
+                    <Cell key={`cell-${index}`} fill={teamColors[team] || "#CCCCCC"} /> // Default gray if team not found
+                  );
+                })}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+
         </div>
       ) : !loading && <p>No data available.</p>}
     </div>
