@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import socket from "../../utils/socket"; 
 import "../../styles/NotificationPanel.css";
+import { Bell, MessageSquare, Calendar } from "lucide-react"; // Icons
 
 function NotificationPanel({ loggedInUser }) {
     const [tasks, setTasks] = useState([]);
@@ -21,7 +22,10 @@ function NotificationPanel({ loggedInUser }) {
                     },
                 });
                 console.log("Fetched Assigned Tasks:", res.data);
-                setTasks(res.data);
+
+                // **Filter out completed tasks**
+                const activeTasks = res.data.filter(task => task.status !== "Completed");
+                setTasks(activeTasks);
             } catch (error) {
                 console.error("Error fetching assigned tasks:", error);
             }
@@ -31,7 +35,7 @@ function NotificationPanel({ loggedInUser }) {
 
         // WebSocket for real-time updates
         socket.on("newTask", (task) => {
-            if (task.assignee === loggedInUser.email) {
+            if (task.assignee === loggedInUser.email && task.status !== "Completed") {
                 console.log("🔄 New Task Received:", task);
                 setTasks((prevTasks) => {
                     const isDuplicate = prevTasks.some((prevTask) => prevTask._id === task._id);
@@ -46,7 +50,7 @@ function NotificationPanel({ loggedInUser }) {
 
             setTasks((prevTasks) =>
                 prevTasks.map((task) =>
-                    task._id === taskId
+                    task._id === taskId && task.status !== "Completed"
                         ? { ...task, comments: [...(task.comments || []), { author, message }] }
                         : task
                 )
@@ -73,16 +77,24 @@ function NotificationPanel({ loggedInUser }) {
 
     return (
         <div className="notification-panel">
+            <h3 className="notification-header">
+                <Bell className="bell-icon" /> Notifications
+            </h3>
+
             {tasks.length === 0 ? (
-                <p>No notifications.</p>
+                <p className="no-notifications">🎉 No new notifications!</p>
             ) : (
-                <ul>
+                <ul className="notification-list">
                     {tasks.map((task) => (
-                        <li key={task._id || Math.random()}>
-                            <p><strong>{task.taskName || task.eventName}</strong></p>
-                            <p>{task.description || "New Event Available!"}</p>
-                            {task.status && <p>Status: {task.status}</p>}
-                            {task.deadline && <p>Deadline: {new Date(task.deadline).toLocaleDateString()}</p>}
+                        <li key={task._id || Math.random()} className="notification-card">
+                            <div className="notification-icon">
+                                {task.taskName ? <MessageSquare size={20} /> : <Calendar size={20} />}
+                            </div>
+                            <div className="notification-content">
+                                <p className="notification-title"><strong>{task.taskName || task.eventName}</strong></p>
+                                <p className="notification-description">{task.description || "New Event Available!"}</p>
+                                {task.deadline && <p className="notification-deadline">📅 {new Date(task.deadline).toLocaleDateString()}</p>}
+                            </div>
                         </li>
                     ))}
                 </ul>

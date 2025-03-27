@@ -1,40 +1,96 @@
-/* Ensure Notification Panel Stays in Place */
-.notification-container {
-    display: flex;
-    justify-content: flex-end; /* Aligns it to the right */
-    align-items: flex-start; /* Ensures alignment with event feed */
-    width: 100%;
-    margin-right: 100px;
-}
-
-/* Outer Notification Panel */
+/* 🔹 Notification Panel Styles */
 .notification-panel {
     width: 400px;
     padding: 20px;
     background-color: white;
     border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    position: relative; /* Ensures proper placement */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-/* Inner Notification Content */
-.notification-content {
-    width: 80%; /* Keep it inside the outer box */
-    padding: 10px;
-    border-radius: 8px;
-    background-color: #f8f9fa;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    margin-top: 10px; /* Ensures spacing */
-    position: relative; /* Keep it within the parent */
+/* 🔹 Header */
+.notification-header {
+    display: flex;
+    align-items: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
 }
 
-/* No Tasks Message */
-.notification-panel p {
+.bell-icon {
+    margin-right: 8px;
+    color: #007bff;
+}
+
+/* 🔹 No Notifications */
+.no-notifications {
+    font-size: 16px;
+    color: #888;
     text-align: center;
+    margin-top: 10px;
+}
+
+/* 🔹 Notification List */
+.notification-list {
+    width: 100%;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* 🔹 Notification Card */
+.notification-card {
+    display: flex;
+    align-items: center;
+    background-color: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    margin-bottom: 10px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.notification-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 🔹 Icon */
+.notification-icon {
+    margin-right: 12px;
+    color: #007bff;
+}
+
+/* 🔹 Content */
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.notification-description {
+    font-size: 14px;
     color: #666;
-    margin-right:80px;
+    margin-bottom: 6px;
+}
+
+.notification-status {
+    font-size: 12px;
+    color: #007bff;
+    font-weight: bold;
+}
+
+.notification-deadline {
+    font-size: 12px;
+    color: #ff5722;
+    font-weight: bold;
 }
